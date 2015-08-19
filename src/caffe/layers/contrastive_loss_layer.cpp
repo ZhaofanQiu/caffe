@@ -6,6 +6,11 @@
 #include "caffe/util/io.hpp"
 #include "caffe/util/math_functions.hpp"
 
+// port for Win32 
+#ifdef _MSC_VER 
+#define max max<Dtype>
+#endif
+
 namespace caffe {
 
 template <typename Dtype>

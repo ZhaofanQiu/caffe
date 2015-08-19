@@ -3,9 +3,9 @@
 #endif
 #include <glog/logging.h>
 #include <stdio.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
+//#include <sys/ioctl.h>
+//#include <sys/mman.h>
+//#include <sys/stat.h>
 
 #include <cstdlib>
 #include <sstream>
@@ -15,6 +15,9 @@
 #include "boost/thread.hpp"
 #include "caffe/caffe.hpp"
 #include "caffe/parallel.hpp"
+
+#include <devioctl.h>
+#include <windows.h>
 
 namespace caffe {
 
