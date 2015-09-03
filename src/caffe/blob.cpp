@@ -399,6 +399,30 @@ bool Blob<Dtype>::ShapeEquals(const BlobProto& other) {
 }
 
 template <typename Dtype>
+bool Blob<Dtype>::ShapeEquals(const BlobProto3D& other) {
+	if (other.has_num() || other.has_channels() ||
+		other.has_height() || other.has_width() || other.has_length()) {
+		// Using deprecated 5D Blob dimensions --
+		// shape is (num, channels, length, height, width).
+		// Note: we do not use the normal Blob::num(), Blob::channels(), etc.
+		// methods as these index from the beginning of the blob shape, where legacy
+		// parameter blobs were indexed from the end of the blob shape (e.g., bias
+		// Blob shape (1 x 1 x 1 x N), IP layer weight Blob shape (1 x 1 x M x N)).
+		return shape_.size() <= 5 &&
+			LegacyShape(-5) == other.num() &&
+			LegacyShape(-4) == other.channels() &&
+			LegacyShape(-3) == other.length() &&
+			LegacyShape(-2) == other.height() &&
+			LegacyShape(-1) == other.width();
+	}
+	vector<int> other_shape(other.shape().dim_size());
+	for (int i = 0; i < other.shape().dim_size(); ++i) {
+		other_shape[i] = other.shape().dim(i);
+	}
+	return shape_ == other_shape;
+}
+
+template <typename Dtype>
 void Blob<Dtype>::CopyFrom(const Blob& source, bool copy_diff, bool reshape) {
   if (source.count() != count_ || source.shape() != shape_) {
     if (reshape) {
@@ -480,6 +504,62 @@ void Blob<Dtype>::FromProto(const BlobProto& proto, bool reshape) {
       diff_vec[i] = proto.diff(i);
     }
   }
+}
+
+template <typename Dtype>
+void Blob<Dtype>::FromProto3D(const BlobProto3D& proto, bool reshape) {
+	if (reshape) {
+		vector<int> shape;
+		if (proto.has_num() || proto.has_channels() ||
+			proto.has_height() || proto.has_width() || proto.has_length()) {
+			// Using deprecated 5D Blob dimensions --
+			// shape is (num, channels, length, height, width).
+			shape.resize(5);
+			shape[0] = proto.num();
+			shape[1] = proto.channels();
+			shape[2] = proto.length();
+			shape[3] = proto.height();
+			shape[4] = proto.width();
+		}
+		else {
+			shape.resize(proto.shape().dim_size());
+			for (int i = 0; i < proto.shape().dim_size(); ++i) {
+				shape[i] = proto.shape().dim(i);
+			}
+		}
+		Reshape(shape);
+	}
+	else {
+		CHECK(ShapeEquals(proto)) << "shape mismatch (reshape not set)";
+	}
+	// copy data
+	Dtype* data_vec = mutable_cpu_data();
+	if (proto.double_data_size() > 0) {
+		CHECK_EQ(count_, proto.double_data_size());
+		for (int i = 0; i < count_; ++i) {
+			data_vec[i] = proto.double_data(i);
+		}
+	}
+	else {
+		CHECK_EQ(count_, proto.data_size());
+		for (int i = 0; i < count_; ++i) {
+			data_vec[i] = proto.data(i);
+		}
+	}
+	if (proto.double_diff_size() > 0) {
+		CHECK_EQ(count_, proto.double_diff_size());
+		Dtype* diff_vec = mutable_cpu_diff();
+		for (int i = 0; i < count_; ++i) {
+			diff_vec[i] = proto.double_diff(i);
+		}
+	}
+	else if (proto.diff_size() > 0) {
+		CHECK_EQ(count_, proto.diff_size());
+		Dtype* diff_vec = mutable_cpu_diff();
+		for (int i = 0; i < count_; ++i) {
+			diff_vec[i] = proto.diff(i);
+		}
+	}
 }
 
 template <>

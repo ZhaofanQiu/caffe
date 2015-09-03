@@ -270,6 +270,12 @@
     <ClCompile Include="..\tools\caffe.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\video_data_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\util\image_io.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -500,6 +506,12 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\util\upgrade_proto.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video_layers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\util\image_io.hpp">
       <Filter>Header Files\util</Filter>
     </ClInclude>
   </ItemGroup>
