@@ -160,6 +160,8 @@ namespace caffe {
 		int datum_height_ = datum.height();
 		int datum_width_ = datum.width();
 		int datum_size_ = datum.channels() * datum.length() * datum.height() * datum.width();
+		this->origin_height_ = datum_height_;
+		this->origin_width_ = datum_width_;
 		CHECK_GT(datum_height_, crop_size);
 		CHECK_GT(datum_width_, crop_size);
 		// check if we want to have mean
@@ -239,8 +241,8 @@ namespace caffe {
 		// datum scales
 		const int channels = top_shape_[1];
 		const int length = top_shape_[2];
-		const int height = top_shape_[3];
-		const int width = top_shape_[4];
+		const int height = this->origin_height_;
+		const int width = this->origin_width_;
 		int size = channels * length * height * width;
 
 		Dtype* prefetch_data = batch->data_.mutable_cpu_data();
@@ -314,7 +316,7 @@ namespace caffe {
 			read_time += timer.MicroSeconds();
 
 			timer.Start();
-			int offset = batch->data_.offset(item_id);
+			int offset = batch->data_.offset(vector<int>(1, item_id));
 			Dtype* top_data = prefetch_data + offset;
 			//LOG(INFO) << "--> " << item_id;
 			//LOG(INFO) << "label " << datum.label();

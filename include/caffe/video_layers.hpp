@@ -38,7 +38,7 @@ namespace caffe {
 
 		virtual inline const char* type() const { return "VideoData"; }
 		virtual inline int ExactNumBottomBlobs() const { return 0; }
-		virtual inline int ExactNumTopBlobs() const { return 1; }
+		virtual inline int ExactNumTopBlobs() const { return 2; }
 
 	protected:
 		shared_ptr<Caffe::RNG> prefetch_rng_;
@@ -54,6 +54,8 @@ namespace caffe {
 		vector<int> top_shape_;
 
 		Blob<Dtype> data_mean_;
+		int origin_width_;
+		int origin_height_;
 	};
 }  // namespace caffe
 

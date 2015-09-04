@@ -409,11 +409,11 @@ bool Blob<Dtype>::ShapeEquals(const BlobProto3D& other) {
 		// parameter blobs were indexed from the end of the blob shape (e.g., bias
 		// Blob shape (1 x 1 x 1 x N), IP layer weight Blob shape (1 x 1 x M x N)).
 		return shape_.size() <= 5 &&
-			LegacyShape(-5) == other.num() &&
-			LegacyShape(-4) == other.channels() &&
-			LegacyShape(-3) == other.length() &&
-			LegacyShape(-2) == other.height() &&
-			LegacyShape(-1) == other.width();
+			shape(0) == other.num() &&
+			shape(1) == other.channels() &&
+			shape(2) == other.length() &&
+			shape(3) == other.height() &&
+			shape(4) == other.width();
 	}
 	vector<int> other_shape(other.shape().dim_size());
 	for (int i = 0; i < other.shape().dim_size(); ++i) {
