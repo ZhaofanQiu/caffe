@@ -32,6 +32,17 @@ using std::string;
 
 namespace caffe {
 
+	vector<int> video_shape(int num, int channels, int length, int height, int width)
+	{
+		vector<int> shape(5, 0);
+		shape[0] = num;
+		shape[1] = channels;
+		shape[2] = length;
+		shape[3] = height;
+		shape[4] = width;
+		return shape;
+	}
+
 	template <typename Dtype>
 	VideoDataLayer<Dtype>::~VideoDataLayer<Dtype>()
 	{
@@ -83,10 +94,10 @@ namespace caffe {
 			LOG(INFO) << "failed to read chunk list" << std::endl;
 		}
 
+		const unsigned int prefetch_rng_seed = caffe_rng_rand();
+		prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
 		if (this->layer_param_.video_data_param().shuffle()){
 			LOG(INFO) << "Shuffling data";
-			const unsigned int prefetch_rng_seed = caffe_rng_rand();
-			prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
 			ShuffleVideo();
 		}
 		LOG(INFO) << "A total of " << shuffle_index_.size() << " video chunks.";
@@ -168,9 +179,9 @@ namespace caffe {
 		if (this->layer_param_.video_data_param().has_mean_file()) {
 			const string& mean_file = this->layer_param_.video_data_param().mean_file();
 			LOG(INFO) << "Loading mean file from" << mean_file;
-			BlobProto3D blob_proto;
+			BlobProto blob_proto;
 			ReadProtoFromBinaryFileOrDie(mean_file.c_str(), &blob_proto);
-			data_mean_.FromProto3D(blob_proto);
+			data_mean_.FromProto(blob_proto);
 			CHECK_EQ(data_mean_.shape(0), 1);
 			CHECK_EQ(data_mean_.shape(1), datum_channels_);
 			CHECK_EQ(data_mean_.shape(2), datum_length_);
@@ -178,14 +189,8 @@ namespace caffe {
 			CHECK_EQ(data_mean_.shape(4), datum_width_);
 		}
 		else {
-			vector<int> mean_shape(5, 0);
-			mean_shape[0] = 1;
-			mean_shape[1] = datum_channels_;
-			mean_shape[2] = datum_length_;
-			mean_shape[3] = datum_height_;
-			mean_shape[4] = datum_width_;
 			// Simply initialize an all-empty mean.
-			data_mean_.Reshape(mean_shape);
+			data_mean_.Reshape(video_shape(1, datum_channels_, datum_length_, datum_height_, datum_width_));
 			if (this->layer_param_.video_data_param().has_mean_value()){
 				LOG(INFO) << "Using mean value of " << this->layer_param_.video_data_param().mean_value();
 				caffe::caffe_set(data_mean_.count(), (Dtype)this->layer_param_.video_data_param().mean_value(),
@@ -420,7 +425,7 @@ namespace caffe {
 			}
 			if (this->output_labels_) {
 				prefetch_label[item_id] = datum.label();
-				// LOG(INFO) << "fetching label" << datum.label() << std::endl;
+				 //LOG(INFO) << "fetching label" << datum.label() << std::endl;
 			}
 
 			this->lines_id_++;

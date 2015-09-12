@@ -28,11 +28,13 @@
     <ClCompile Include="..\src\caffe\layers\absval_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\accuracy_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\argmax_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\base_conv3D_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\base_conv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\base_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\bnll_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\concat_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\contrastive_loss_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\conv3d_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\conv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_conv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_pooling_layer.cpp" />
@@ -41,6 +43,7 @@
     <ClCompile Include="..\src\caffe\layers\cudnn_softmax_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\data_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\deconv3d_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\deconv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\dropout_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\dummy_data_layer.cpp" />
@@ -63,6 +66,7 @@
     <ClCompile Include="..\src\caffe\layers\multinomial_logistic_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\mvn_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\neuron_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\pooling3d_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\pooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\power_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\prelu_layer.cpp" />
@@ -100,7 +104,8 @@
     <ClCompile Include="..\src\caffe\util\io.cpp" />
     <ClCompile Include="..\src\caffe\util\math_functions.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
-    <ClCompile Include="..\tools\caffe.cpp" />
+    <ClCompile Include="..\src\caffe\util\vol2col.cpp" />
+    <ClCompile Include="..\tools\extract_feature_onefile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -110,6 +115,7 @@
     <CudaCompile Include="..\src\caffe\layers\bnll_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\concat_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\contrastive_loss_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\conv3d_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\conv_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_conv_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_pooling_layer.cu" />
@@ -117,6 +123,7 @@
     <CudaCompile Include="..\src\caffe\layers\cudnn_sigmoid_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_softmax_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_tanh_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\deconv3d_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\deconv_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\dropout_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\eltwise_layer.cu" />
@@ -130,6 +137,7 @@
     <CudaCompile Include="..\src\caffe\layers\log_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\lrn_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\mvn_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\pooling3d_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\pooling_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\power_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\prelu_layer.cu" />
@@ -146,6 +154,7 @@
     <CudaCompile Include="..\src\caffe\layers\threshold_layer.cu" />
     <CudaCompile Include="..\src\caffe\util\im2col.cu" />
     <CudaCompile Include="..\src\caffe\util\math_functions.cu" />
+    <CudaCompile Include="..\src\caffe\util\vol2col.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\caffe\blob.hpp" />
@@ -182,6 +191,7 @@
     <ClInclude Include="..\include\caffe\util\mkl_alternate.hpp" />
     <ClInclude Include="..\include\caffe\util\rng.hpp" />
     <ClInclude Include="..\include\caffe\util\upgrade_proto.hpp" />
+    <ClInclude Include="..\include\caffe\util\vol2col.hpp" />
     <ClInclude Include="..\include\caffe\video_layers.hpp" />
     <ClInclude Include="..\include\caffe\vision_layers.hpp" />
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h" />
@@ -286,6 +296,9 @@
       <Command>
       </Command>
     </PreBuildEvent>
+    <CudaCompile>
+      <CodeGeneration>compute_37,sm_37</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -329,6 +342,9 @@
       <Command>
       </Command>
     </PreBuildEvent>
+    <CudaCompile>
+      <CodeGeneration>compute_37,sm_37</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

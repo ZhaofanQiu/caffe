@@ -934,6 +934,7 @@ void ReadNetParamsFromBinaryFileOrDie(const string& param_file,
                                       NetParameter* param) {
   CHECK(ReadProtoFromBinaryFile(param_file, param))
       << "Failed to parse NetParameter file: " << param_file;
+  
   UpgradeNetAsNeeded(param_file, param);
 }
 

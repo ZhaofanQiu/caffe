@@ -228,7 +228,6 @@ class Blob {
   Dtype* mutable_gpu_diff();
   void Update();
   void FromProto(const BlobProto& proto, bool reshape = true);
-  void FromProto3D(const BlobProto3D& proto, bool reshape = true);
   void ToProto(BlobProto* proto, bool write_diff = false) const;
 
   /// @brief Compute the sum of absolute values (L1 norm) of the data.
@@ -265,7 +264,6 @@ class Blob {
   void ShareDiff(const Blob& other);
 
   bool ShapeEquals(const BlobProto& other);
-  bool ShapeEquals(const BlobProto3D& other);
 
  protected:
   shared_ptr<SyncedMemory> data_;

@@ -21,21 +21,6 @@ message BlobProto {
   optional int32 width = 4 [default = 0];
 }
 
-message BlobProto3D {
-  optional BlobShape shape = 8;
-  repeated float data = 6 [packed = true];
-  repeated float diff = 7 [packed = true];
-  repeated double double_data = 9 [packed = true];
-  repeated double double_diff = 10 [packed = true];
-
-  // 4D dimensions -- deprecated.  Use "shape" instead.
-  optional int32 num = 1 [default = 0];
-  optional int32 channels = 2 [default = 0];
-  optional int32 length = 3 [default = 0];
-  optional int32 height = 4 [default = 0];
-  optional int32 width = 5 [default = 0];
-}
-
 // The BlobProtoVector is simply a way to pass multiple blobproto instances
 // around.
 message BlobProtoVector {
@@ -411,6 +396,8 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional WindowDataParameter window_data_param = 129;
   optional VideoDataParameter video_data_param = 137;
+  optional Convolution3DParameter convolution3d_param = 138;
+  optional Pooling3DParameter pooling3d_param = 139;
 }
 
 // Message that stores parameters used to apply transformation
@@ -517,6 +504,28 @@ message ConvolutionParameter {
     CUDNN = 2;
   }
   optional Engine engine = 15 [default = DEFAULT];
+}
+
+message Convolution3DParameter {
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool bias_term = 2 [default = true]; // whether to have bias terms
+  // Pad, kernel size, and stride are all given as a single value for equal
+  // dimensions in height and width or as Y, X pairs.
+  optional uint32 pad = 3 [default = 0]; // The padding size (equal in Y, X)
+  optional uint32 pad_l = 9 [default = 0]; // The padding length
+  optional uint32 kernel_size = 4; // The kernel size (square)
+  optional uint32 kernel_l = 10; // The kernel length
+  optional uint32 group = 5 [default = 1]; // The group size for group conv
+  optional uint32 stride = 6 [default = 1]; // The stride (equal in Y, X)
+  optional uint32 stride_l = 11 [default = 1]; // The stride length
+  optional FillerParameter weight_filler = 7; // The filler for the weight
+  optional FillerParameter bias_filler = 8; // The filler for the bias
+  enum Engine {
+    DEFAULT = 0;
+    CAFFE = 1;
+    CUDNN = 2;
+  }
+  optional Engine engine = 12 [default = DEFAULT];
 }
 
 message DataParameter {
@@ -755,6 +764,38 @@ message PoolingParameter {
   // If global_pooling then it will pool over the size of the bottom by doing
   // kernel_h = bottom->height and kernel_w = bottom->width
   optional bool global_pooling = 12 [default = false];
+}
+
+message Pooling3DParameter {
+  enum PoolMethod {
+    MAX = 0;
+    AVE = 1;
+    STOCHASTIC = 2;
+  }
+  optional PoolMethod pool = 1 [default = MAX]; // The pooling method
+  // Pad, kernel size, and stride are all given as a single value for equal
+  // dimensions in height and width or as Y, X pairs.
+  optional uint32 pad = 2 [default = 0]; // The padding size (equal in Y, X)
+  optional uint32 pad_h = 5 [default = 0]; // The padding height
+  optional uint32 pad_w = 6 [default = 0]; // The padding width
+  optional uint32 pad_l = 7 [default = 0]; // The padding length  
+  optional uint32 kernel_size = 3; // The kernel size (square)
+  optional uint32 kernel_h = 8; // The kernel height
+  optional uint32 kernel_w = 9; // The kernel width
+  optional uint32 kernel_l = 10; // The kernel length
+  optional uint32 stride = 4 [default = 1]; // The stride (equal in Y, X)
+  optional uint32 stride_h = 11; // The stride height
+  optional uint32 stride_w = 12; // The stride width
+  optional uint32 stride_l = 13 [default = 1]; // The stride length
+  enum Engine {
+    DEFAULT = 0;
+    CAFFE = 1;
+    CUDNN = 2;
+  }
+  optional Engine engine = 14 [default = DEFAULT];
+    // If global_pooling then it will pool over the size of the bottom by doing
+  // kernel_h = bottom->height and kernel_w = bottom->width
+  optional bool global_pooling = 15 [default = false];
 }
 
 message PowerParameter {
@@ -1032,7 +1073,6 @@ message V1LayerParameter {
     TANH = 23;
     WINDOW_DATA = 24;
     THRESHOLD = 31;
-	VIDEO_DATA = 40;
   }
   optional LayerType type = 5;
   repeated BlobProto blobs = 6;
@@ -1076,7 +1116,6 @@ message V1LayerParameter {
   optional TransformationParameter transform_param = 36;
   optional LossParameter loss_param = 42;
   optional V0LayerParameter layer = 1;
-  optional VideoDataParameter video_data_param = 43;
 }
 
 // DEPRECATED: V0LayerParameter is the old way of specifying layer parameters
