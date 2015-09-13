@@ -105,7 +105,8 @@
     <ClCompile Include="..\src\caffe\util\math_functions.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\caffe\util\vol2col.cpp" />
-    <ClCompile Include="..\tools\extract_feature_onefile.cpp" />
+    <ClCompile Include="..\src\gtest\gtest-all.cpp" />
+    <ClCompile Include="..\tools\test_caffe_layers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -175,6 +176,8 @@
     <ClInclude Include="..\include\caffe\python_layer.hpp" />
     <ClInclude Include="..\include\caffe\solver.hpp" />
     <ClInclude Include="..\include\caffe\syncedmem.hpp" />
+    <ClInclude Include="..\include\caffe\test\test_caffe_main.hpp" />
+    <ClInclude Include="..\include\caffe\test\test_gradient_check_util.hpp" />
     <ClInclude Include="..\include\caffe\util\benchmark.hpp" />
     <ClInclude Include="..\include\caffe\util\blocking_queue.hpp" />
     <ClInclude Include="..\include\caffe\util\cudnn.hpp" />
@@ -195,6 +198,7 @@
     <ClInclude Include="..\include\caffe\video_layers.hpp" />
     <ClInclude Include="..\include\caffe\vision_layers.hpp" />
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h" />
+    <ClInclude Include="..\src\gtest\gtest.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\caffe\proto\caffe.proto" />
@@ -298,6 +302,7 @@
     </PreBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_37,sm_37</CodeGeneration>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -344,6 +349,7 @@
     </PreBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_37,sm_37</CodeGeneration>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

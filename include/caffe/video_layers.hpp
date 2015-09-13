@@ -125,20 +125,20 @@ namespace caffe {
 		// wrap im2col/col2im so we don't have to remember the (long) argument lists
 		inline void conv_vol2col_cpu(const Dtype* data, Dtype* col_buff) {
 			vol2col_cpu(data, conv_in_channels_, conv_in_length_, conv_in_height_, conv_in_width_,
-				kernel_l_, kernel_size_, pad_l_, pad_, stride_l_, stride_, col_buff);
+				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, col_buff);
 		}
 		inline void conv_col2vol_cpu(const Dtype* col_buff, Dtype* data) {
 			col2vol_cpu(col_buff, conv_in_channels_, conv_in_length_, conv_in_height_, conv_in_width_,
-				kernel_l_, kernel_size_, pad_l_, pad_, stride_l_, stride_, data);
+				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, data);
 		}
 #ifndef CPU_ONLY
 		inline void conv_vol2col_gpu(const Dtype* data, Dtype* col_buff) {
 			vol2col_gpu(data, conv_in_channels_, conv_in_length_, conv_in_height_, conv_in_width_,
-				kernel_l_, kernel_size_, pad_l_, pad_, stride_l_, stride_, col_buff);
+				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, col_buff);
 		}
 		inline void conv_col2vol_gpu(const Dtype* col_buff, Dtype* data) {
 			col2vol_gpu(col_buff, conv_in_channels_, conv_in_length_, conv_in_height_, conv_in_width_,
-				kernel_l_, kernel_size_, pad_l_, pad_, stride_l_, stride_, data);
+				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, data);
 		}
 #endif
 

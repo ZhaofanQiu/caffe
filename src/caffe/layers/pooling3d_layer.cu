@@ -199,7 +199,7 @@ void Pooling3DLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   const bool use_top_mask = top.size() > 1;
   int* mask = NULL;
   Dtype* top_mask = NULL;
-  switch (this->layer_param_.pooling_param().pool()) {
+  switch (this->layer_param_.pooling3d_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
     if (use_top_mask) {
       top_mask = top[1]->mutable_gpu_data();
@@ -400,7 +400,7 @@ void Pooling3DLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   const bool use_top_mask = top.size() > 1;
   const int* mask = NULL;
   const Dtype* top_mask = NULL;
-  switch (this->layer_param_.pooling_param().pool()) {
+  switch (this->layer_param_.pooling3d_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
     if (use_top_mask) {
       top_mask = top[1]->gpu_data();

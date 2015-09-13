@@ -28,6 +28,12 @@
     <Filter Include="Tools">
       <UniqueIdentifier>{e44a0196-e90d-4ed1-8e57-f98394369f6a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\test">
+      <UniqueIdentifier>{0bf718bb-b9b5-4bb3-b661-1af25a866118}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\test">
+      <UniqueIdentifier>{3ba9c14c-2530-4689-a1c9-402014a52f2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\caffe\blob.cpp">
@@ -288,8 +294,11 @@
     <ClCompile Include="..\src\caffe\layers\pooling3d_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\extract_feature_onefile.cpp">
+    <ClCompile Include="..\tools\test_caffe_layers.cpp">
       <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\gtest\gtest-all.cpp">
+      <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -543,6 +552,15 @@
     </ClInclude>
     <ClInclude Include="..\include\caffe\util\vol2col.hpp">
       <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\test\test_caffe_main.hpp">
+      <Filter>Header Files\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\test\test_gradient_check_util.hpp">
+      <Filter>Header Files\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\gtest\gtest.h">
+      <Filter>Header Files\test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

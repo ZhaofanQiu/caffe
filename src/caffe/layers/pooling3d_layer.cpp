@@ -87,9 +87,9 @@ void Pooling3DLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 				<< "With Global_pooling: true; only pad = 0 and stride = 1";
 		}
 		if (pad_h_ != 0 || pad_w_ != 0 || pad_l_ != 0) {
-			CHECK(this->layer_param_.pooling_param().pool()
+			CHECK(this->layer_param_.pooling3d_param().pool()
 				== PoolingParameter_PoolMethod_AVE
-				|| this->layer_param_.pooling_param().pool()
+				|| this->layer_param_.pooling3d_param().pool()
 				== PoolingParameter_PoolMethod_MAX)
 				<< "Padding implemented only for average and max pooling.";
 			CHECK_LT(pad_h_, kernel_h_);
@@ -141,13 +141,13 @@ void Pooling3DLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
     top[1]->ReshapeLike(*top[0]);
   }
   // If max pooling, we will initialize the vector index part.
-  if (this->layer_param_.pooling_param().pool() ==
+  if (this->layer_param_.pooling3d_param().pool() ==
       PoolingParameter_PoolMethod_MAX && top.size() == 1) {
     max_idx_.Reshape(video_shape(bottom[0]->shape(0), channels_, pooled_length_, pooled_height_,
         pooled_width_));
   }
   // If stochastic pooling, we will initialize the random index part.
-  if (this->layer_param_.pooling_param().pool() ==
+  if (this->layer_param_.pooling3d_param().pool() ==
       PoolingParameter_PoolMethod_STOCHASTIC) {
     rand_idx_.Reshape(video_shape(bottom[0]->shape(0), channels_, pooled_length_, pooled_height_,
       pooled_width_));
@@ -168,7 +168,7 @@ void Pooling3DLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   Dtype* top_mask = NULL;
   // Different pooling methods. We explicitly do the switch outside the for
   // loop to save time, although this results in more code.
-  switch (this->layer_param_.pooling_param().pool()) {
+  switch (this->layer_param_.pooling3d_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
     // Initialize
     if (use_top_mask) {
@@ -245,7 +245,7 @@ void Pooling3DLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 					  lstart = max(lstart, 0);
 					  hstart = max(hstart, 0);
 					  wstart = max(wstart, 0);
-					  lend = min(hend, length_);
+					  lend = min(lend, length_);
 					  hend = min(hend, height_);
 					  wend = min(wend, width_);
 					  for (int l = lstart; l < lend; ++l){
@@ -289,7 +289,7 @@ void Pooling3DLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   const bool use_top_mask = top.size() > 1;
   const int* mask = NULL;  // suppress warnings about uninitialized variables
   const Dtype* top_mask = NULL;
-  switch (this->layer_param_.pooling_param().pool()) {
+  switch (this->layer_param_.pooling3d_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
     // The main loop
     if (use_top_mask) {
