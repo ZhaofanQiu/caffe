@@ -294,9 +294,6 @@
     <ClCompile Include="..\src\caffe\layers\pooling3d_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\test_caffe_layers.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\gtest\gtest-all.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
@@ -308,6 +305,15 @@
     </ClCompile>
     <ClCompile Include="..\src\caffe\layers\volume_data_layer.cpp">
       <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\crop_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\video_switch_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\test_caffe_layers.cpp">
+      <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -450,6 +456,12 @@
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\crop_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\video_switch_layer.cu">
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
   </ItemGroup>

@@ -36,6 +36,7 @@
     <ClCompile Include="..\src\caffe\layers\contrastive_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\conv3d_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\conv_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\crop_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_conv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_pooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_relu_layer.cpp" />
@@ -43,6 +44,7 @@
     <ClCompile Include="..\src\caffe\layers\cudnn_softmax_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\data_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\video_switch_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\volume_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\deconv3d_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\deconv_layer.cpp" />
@@ -121,6 +123,7 @@
     <CudaCompile Include="..\src\caffe\layers\contrastive_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\conv3d_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\conv_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\crop_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_conv_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_pooling_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_relu_layer.cu" />
@@ -158,6 +161,7 @@
     <CudaCompile Include="..\src\caffe\layers\tanh_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\threshold_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\video_switch_layer.cu" />
     <CudaCompile Include="..\src\caffe\util\im2col.cu" />
     <CudaCompile Include="..\src\caffe\util\math_functions.cu" />
     <CudaCompile Include="..\src\caffe\util\vol2col.cu" />
@@ -308,7 +312,6 @@
     </PreBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_37,sm_37</CodeGeneration>
-      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -355,7 +358,6 @@
     </PreBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_37,sm_37</CodeGeneration>
-      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

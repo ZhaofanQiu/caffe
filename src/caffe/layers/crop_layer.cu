@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "caffe/vision_layers.hpp"
+#include "caffe/video_layers.hpp"
 
 namespace caffe {
 
@@ -27,14 +27,14 @@ namespace caffe {
 		const vector<Blob<Dtype>*>& top) {
 		const Dtype* bottom_data = bottom[0]->gpu_data();
 		Dtype* top_data = top[0]->mutable_gpu_data();
-		const int lines = top[0]->count() / top[0]->width();
+		const int lines = top[0]->count(0, top[0]->num_axes() - 1);
 
 		// NOLINT_NEXT_LINE(whitespace/operators)
 		copy_kernel << <CAFFE_GET_BLOCKS(lines), CAFFE_CUDA_NUM_THREADS >> >(
-			lines, top[0]->height(), top[0]->width(),
-			bottom[0]->height() * bottom[0]->width(), bottom[0]->width(),
-			top[0]->height() * top[0]->width(), top[0]->width(),
-			bottom_data + bottom[0]->offset(0, 0, crop_h_, crop_w_), top_data);
+			lines, top[0]->shape(-2), top[0]->shape(-1),
+			bottom[0]->shape(-2) * bottom[0]->shape(-1), bottom[0]->shape(-1),
+			top[0]->shape(-2) * top[0]->shape(-1), top[0]->shape(-1),
+			bottom_data + crop_h_ * bottom[0]->shape(-1) + crop_w_, top_data);
 	}
 
 	template <typename Dtype>
@@ -42,19 +42,18 @@ namespace caffe {
 		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
 		const Dtype* top_diff = top[0]->gpu_diff();
 		Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
-		const int lines = top[0]->count() / top[0]->width();
+		const int lines = top[0]->count(0, top[0]->num_axes() - 1);
 
 		if (propagate_down[0]) {
 			caffe_gpu_set(bottom[0]->count(), static_cast<Dtype>(0), bottom_diff);
 			// NOLINT_NEXT_LINE(whitespace/operators)
 			copy_kernel << <CAFFE_GET_BLOCKS(lines), CAFFE_CUDA_NUM_THREADS >> >(
-				lines, top[0]->height(), top[0]->width(),
-				top[0]->height() * top[0]->width(), top[0]->width(),
-				bottom[0]->height() * bottom[0]->width(), bottom[0]->width(),
-				top_diff, bottom_diff + bottom[0]->offset(0, 0, crop_h_, crop_w_));
+				lines, top[0]->shape(-2), top[0]->shape(-1),
+				top[0]->shape(-2) * top[0]->shape(-1), top[0]->shape(-1),
+				bottom[0]->shape(-2) * bottom[0]->shape(-1), bottom[0]->shape(-1),
+				top_diff, bottom_diff + crop_h_ * bottom[0]->shape(-1) + crop_w_);
 		}
 	}
 
 	INSTANTIATE_LAYER_GPU_FUNCS(CropLayer);
-
 }  // namespace caffe

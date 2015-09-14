@@ -400,6 +400,7 @@ message LayerParameter {
   optional VideoDataParameter video_data_param = 139;
   optional Convolution3DParameter convolution3d_param = 140;
   optional Pooling3DParameter pooling3d_param = 141;
+  optional VideoSwitchParameter video_switch_param = 142;
 }
 
 // Message that stores parameters used to apply transformation
@@ -1281,4 +1282,16 @@ message VideoDataParameter {
   optional bool use_label = 15 [default = true];
   optional bool use_temporal_jitter = 16 [default = false];
   optional float mean_value = 17 [default = 0];  
+}
+
+// Message that stores parameters used by VideoSwitchParameter
+message VideoSwitchParameter {
+  enum SwitchOp {
+    VIDEO = 1;
+    IMAGE = 2;
+  }
+  // Specify switch destination.
+  optional SwitchOp switch = 1;
+  // Specify video frame number.
+  optional uint32 frame_num = 2;
 }
