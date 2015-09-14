@@ -44,6 +44,7 @@
     <ClCompile Include="..\src\caffe\layers\cudnn_softmax_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\data_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\lstm_unit_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\video_switch_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\volume_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\deconv3d_layer.cpp" />
@@ -144,6 +145,7 @@
     <CudaCompile Include="..\src\caffe\layers\inner_product_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\log_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\lrn_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\lstm_unit_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\mvn_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\pooling3d_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\pooling_layer.cu" />
@@ -312,6 +314,7 @@
     </PreBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_37,sm_37</CodeGeneration>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -358,6 +361,7 @@
     </PreBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_37,sm_37</CodeGeneration>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

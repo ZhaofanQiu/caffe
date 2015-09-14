@@ -153,7 +153,7 @@ namespace caffe{
 			pooling_param->set_kernel_size(4);
 			pooling_param->set_kernel_l(1);
 			pooling_param->set_stride(2);
-			pooling_param->set_pool(Pooling3DParameter_PoolMethod_AVE);
+			pooling_param->set_pool(Pooling3DParameter_PoolMethod_MAX);
 
 			shared_ptr<Layer<Dtype>> layer(new Pooling3DLayer<Dtype>(layer_param));
 			GradientChecker<Dtype> checker(1e-3, 1e-3);

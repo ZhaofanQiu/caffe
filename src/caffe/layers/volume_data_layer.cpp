@@ -1,3 +1,12 @@
+﻿
+/********************************************************************************
+** Copyright(c) 2015 USTC & MSRA All Rights Reserved.
+** auth： Zhaofan Qiu
+** mail： zhaofanqiu@gmail.com
+** date： 2015/9/14
+** desc： Volume data layer
+*********************************************************************************/
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/highgui/highgui_c.h>

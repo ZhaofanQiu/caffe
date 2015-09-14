@@ -1,3 +1,12 @@
+﻿
+/********************************************************************************
+** Copyright(c) 2015 USTC & MSRA All Rights Reserved.
+** auth： Zhaofan Qiu
+** mail： zhaofanqiu@gmail.com
+** date： 2015/9/14
+** desc： Video switch layer
+*********************************************************************************/
+
 #include <vector>
 
 #include "caffe/video_layers.hpp"
@@ -57,7 +66,7 @@ namespace caffe {
 		const int outer = res_shape[0] * res_shape[1] * res_shape[2];
 
 		// NOLINT_NEXT_LINE(whitespace/operators)
-		video_switch_forward_kernel << <CAFFE_GET_BLOCKS(outer), CAFFE_CUDA_NUM_THREADS >> >(
+		video_switch_backward_kernel << <CAFFE_GET_BLOCKS(outer), CAFFE_CUDA_NUM_THREADS >> >(
 			outer, res_shape[0], res_shape[1],
 			res_shape[2], inner, res, des);
 	}

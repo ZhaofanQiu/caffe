@@ -1,3 +1,12 @@
+﻿
+/********************************************************************************
+** Copyright(c) 2015 USTC & MSRA All Rights Reserved.
+** auth： Zhaofan Qiu
+** mail： zhaofanqiu@gmail.com
+** date： 2015/9/14
+** desc： Crop layer
+*********************************************************************************/
+
 #include <algorithm>
 #include <map>
 #include <set>
