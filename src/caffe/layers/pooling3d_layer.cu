@@ -200,7 +200,7 @@ void Pooling3DLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   int* mask = NULL;
   Dtype* top_mask = NULL;
   switch (this->layer_param_.pooling3d_param().pool()) {
-  case PoolingParameter_PoolMethod_MAX:
+  case Pooling3DParameter_PoolMethod_MAX:
     if (use_top_mask) {
       top_mask = top[1]->mutable_gpu_data();
     } else {
@@ -213,14 +213,14 @@ void Pooling3DLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
         kernel_w_, stride_l_, stride_h_, stride_w_, pad_l_, pad_h_, pad_w_, top_data,
         mask, top_mask);
     break;
-  case PoolingParameter_PoolMethod_AVE:
+  case Pooling3DParameter_PoolMethod_AVE:
     // NOLINT_NEXT_LINE(whitespace/operators)
     AvePoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->shape(0), channels_,
         length_, height_, width_, pooled_length_, pooled_height_, pooled_width_, kernel_l_, kernel_h_,
         kernel_w_, stride_l_, stride_h_, stride_w_, pad_l_, pad_h_, pad_w_, top_data);
     break;
-  case PoolingParameter_PoolMethod_STOCHASTIC:
+  case Pooling3DParameter_PoolMethod_STOCHASTIC:
     if (this->phase_ == TRAIN) {
       // We need to create the random index as well.
       caffe_gpu_rng_uniform(count, Dtype(0), Dtype(1),
@@ -401,7 +401,7 @@ void Pooling3DLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   const int* mask = NULL;
   const Dtype* top_mask = NULL;
   switch (this->layer_param_.pooling3d_param().pool()) {
-  case PoolingParameter_PoolMethod_MAX:
+  case Pooling3DParameter_PoolMethod_MAX:
     if (use_top_mask) {
       top_mask = top[1]->gpu_data();
     } else {
@@ -414,14 +414,14 @@ void Pooling3DLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         kernel_l_, kernel_h_, kernel_w_, stride_l_, stride_h_, stride_w_, pad_l_, pad_h_, pad_w_,
         bottom_diff);
     break;
-  case PoolingParameter_PoolMethod_AVE:
+  case Pooling3DParameter_PoolMethod_AVE:
     // NOLINT_NEXT_LINE(whitespace/operators)
     AvePoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, top_diff, top[0]->shape(0), channels_,
         length_, height_, width_, pooled_length_, pooled_height_, pooled_width_, kernel_l_, kernel_h_,
         kernel_w_, stride_l_, stride_h_, stride_w_, pad_l_, pad_h_, pad_w_, bottom_diff);
     break;
-  case PoolingParameter_PoolMethod_STOCHASTIC:
+  case Pooling3DParameter_PoolMethod_STOCHASTIC:
     // NOLINT_NEXT_LINE(whitespace/operators)
     StoPoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, rand_idx_.gpu_data(), top_diff,

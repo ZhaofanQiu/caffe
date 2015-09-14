@@ -397,9 +397,9 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
-  optional VideoDataParameter video_data_param = 137;
-  optional Convolution3DParameter convolution3d_param = 138;
-  optional Pooling3DParameter pooling3d_param = 139;
+  optional VideoDataParameter video_data_param = 139;
+  optional Convolution3DParameter convolution3d_param = 140;
+  optional Pooling3DParameter pooling3d_param = 141;
 }
 
 // Message that stores parameters used to apply transformation

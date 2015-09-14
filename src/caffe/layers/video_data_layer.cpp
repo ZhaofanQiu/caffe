@@ -158,11 +158,13 @@ namespace caffe {
 			<< top[0]->shape(1) << "," << top[0]->shape(2) << "," << top[0]->shape(3) << ","
 			<< top[0]->shape(4);
 		// label
-		vector<int> label_shape(1, batch_size);
-		top[1]->Reshape(label_shape);
-		for (int i = 0; i < this->PREFETCH_COUNT; ++i)
-		{
-			this->prefetch_[i].label_.Reshape(label_shape);
+		if (this->output_labels_) {
+			vector<int> label_shape(1, batch_size);
+			top[1]->Reshape(label_shape);
+			for (int i = 0; i < this->PREFETCH_COUNT; ++i)
+			{
+				this->prefetch_[i].label_.Reshape(label_shape);
+			}
 		}
 
 		// datum size

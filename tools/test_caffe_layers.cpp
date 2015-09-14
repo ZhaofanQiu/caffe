@@ -1,3 +1,12 @@
+﻿
+/********************************************************************************
+** Copyright(c) 2015 USTC & MSRA All Rights Reserved.
+** auth： Zhaofan Qiu
+** mail： zhaofanqiu@gmail.com
+** date： 2015/9/13
+** desc： Test video layers
+*********************************************************************************/
+
 #include <cstring>
 #include <vector>
 
@@ -39,16 +48,7 @@ namespace caffe{
 		vector<Blob<Dtype>*> blob_top_vec_;
 
 	public:
-		void StartTest(int device_id){
-			if (device_id < 0)
-			{
-				Caffe::set_mode(Caffe::CPU);
-			}
-			else
-			{
-				Caffe::set_mode(Caffe::GPU);
-				Caffe::SetDevice(device_id);
-			}
+		void StartTest(){
 			LayerParameter layer_param;
 			Convolution3DParameter* convolution_param = layer_param.mutable_convolution3d_param();
 			convolution_param->set_kernel_size(4);
@@ -61,7 +61,7 @@ namespace caffe{
 			convolution_param->mutable_bias_filler()->set_value(1.);
 
 			shared_ptr<Layer<Dtype>> layer(new Convolution3DLayer<Dtype>(layer_param));
-			GradientChecker<Dtype> checker(1e-2, 1e-3);
+			GradientChecker<Dtype> checker(1e-3, 1e-3);
 			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
 
 			EXPECT_EQ(this->blob_top_->shape(0), 2);
@@ -98,16 +98,7 @@ namespace caffe{
 		vector<Blob<Dtype>*> blob_top_vec_;
 
 	public:
-		void StartTest(int device_id){
-			if (device_id < 0)
-			{
-				Caffe::set_mode(Caffe::CPU);
-			}
-			else
-			{
-				Caffe::set_mode(Caffe::GPU);
-				Caffe::SetDevice(device_id);
-			}
+		void StartTest(){
 			LayerParameter layer_param;
 			Convolution3DParameter* convolution_param = layer_param.mutable_convolution3d_param();
 			convolution_param->set_kernel_size(4);
@@ -120,7 +111,7 @@ namespace caffe{
 			convolution_param->mutable_bias_filler()->set_value(1.);
 
 			shared_ptr<Layer<Dtype>> layer(new Deconvolution3DLayer<Dtype>(layer_param));
-			GradientChecker<Dtype> checker(1e-2, 1e-3);
+			GradientChecker<Dtype> checker(1e-3, 1e-3);
 			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
 			EXPECT_EQ(this->blob_top_->shape(0), 2);
 			EXPECT_EQ(this->blob_top_->shape(1), 2);
@@ -156,25 +147,16 @@ namespace caffe{
 		vector<Blob<Dtype>*> blob_top_vec_;
 
 	public:
-		void StartTest(int device_id){
-			if (device_id < 0)
-			{
-				Caffe::set_mode(Caffe::CPU);
-			}
-			else
-			{
-				Caffe::set_mode(Caffe::GPU);
-				Caffe::SetDevice(device_id);
-			}
+		void StartTest(){
 			LayerParameter layer_param;
 			Pooling3DParameter* pooling_param = layer_param.mutable_pooling3d_param();
 			pooling_param->set_kernel_size(4);
 			pooling_param->set_kernel_l(1);
 			pooling_param->set_stride(2);
-			pooling_param->set_pool(Pooling3DParameter_PoolMethod_MAX);
+			pooling_param->set_pool(Pooling3DParameter_PoolMethod_AVE);
 
 			shared_ptr<Layer<Dtype>> layer(new Pooling3DLayer<Dtype>(layer_param));
-			GradientChecker<Dtype> checker(1e-4, 1e-3);
+			GradientChecker<Dtype> checker(1e-3, 1e-3);
 			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
 			EXPECT_EQ(this->blob_top_->shape(0), 2);
 			EXPECT_EQ(this->blob_top_->shape(1), 2);
@@ -187,14 +169,17 @@ namespace caffe{
 
 int main(int argc, char** argv){
 	FLAGS_logtostderr = 1;
+	//caffe::Caffe::set_mode(caffe::Caffe::CPU);
+	caffe::Caffe::set_mode(caffe::Caffe::GPU);
+	caffe::Caffe::SetDevice(1);
 	caffe::Convolution3DLayerTest<float> test1;
-	test1.StartTest(1);
+	test1.StartTest();
 	LOG(INFO) << "End test Convolution3DLayer";
 	caffe::Deconvolution3DLayerTest<float> test2;
-	test2.StartTest(1);
+	test2.StartTest();
 	LOG(INFO) << "End test Deconvolution3DLayer";
 	caffe::Pooling3DLayerTest<float> test3;
-	test3.StartTest(1);
+	test3.StartTest();
 	LOG(INFO) << "End test Pooling3DLayer";
 	return 0;
 }

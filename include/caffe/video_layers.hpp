@@ -14,6 +14,9 @@
 #include <utility>
 #include <vector>
 
+#include "leveldb/db.h"
+#include "boost/scoped_ptr.hpp"
+
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
 #include "caffe/common_layers.hpp"
@@ -287,6 +290,65 @@ namespace caffe {
 		Blob<Dtype> rand_idx_;
 		Blob<int> max_idx_;
 	};
+
+	template <typename Dtype>
+	class VolumeDataLayer : public BasePrefetchingDataLayer<Dtype> {
+	public:
+		explicit VolumeDataLayer(const LayerParameter& param);
+		virtual ~VolumeDataLayer();
+		virtual void DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		// DataLayer uses DataReader instead for sharing for parallelism
+		virtual inline bool ShareInParallel() const { return false; }
+		virtual inline const char* type() const { return "DBData"; }
+		virtual inline int ExactNumBottomBlobs() const { return 0; }
+		virtual inline int MinTopBlobs() const { return 1; }
+		virtual inline int MaxTopBlobs() const { return 2; }
+
+	protected:
+		shared_ptr<leveldb::DB> db_;
+		shared_ptr<leveldb::Iterator> iter_;
+		shared_ptr<Caffe::RNG> prefetch_rng_;
+		virtual unsigned int PrefetchRand();
+		virtual void load_batch(Batch<Dtype>* batch);
+		vector<int> top_shape_;
+		Blob<Dtype> data_mean_;
+		int origin_width_;
+		int origin_height_;
+	};
+	/*
+	template <typename Dtype>
+	class CropLayer : public Layer<Dtype> {
+	public:
+		explicit CropLayer(const LayerParameter& param)
+			: Layer<Dtype>(param) {}
+		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "Crop"; }
+		virtual inline int ExactNumBottomBlobs() const { return 2; }
+		virtual inline int ExactNumTopBlobs() const { return 1; }
+		virtual inline DiagonalAffineMap<Dtype> coord_map() {
+			vector<pair<Dtype, Dtype> > coefs;
+			coefs.push_back(make_pair(1, -crop_h_));
+			coefs.push_back(make_pair(1, -crop_w_));
+			return DiagonalAffineMap<Dtype>(coefs);
+		}
+
+	protected:
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+		int crop_h_, crop_w_;
+	};*/
 }  // namespace caffe
 
 #endif  // CAFFE_VIDEO_LAYERS_HPP_

@@ -43,11 +43,13 @@
     <ClCompile Include="..\src\caffe\layers\cudnn_softmax_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\data_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\volume_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\deconv3d_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\deconv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\dropout_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\dummy_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\eltwise_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\embed_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\euclidean_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\exp_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\filter_layer.cpp" />
@@ -83,6 +85,7 @@
     <ClCompile Include="..\src\caffe\layers\spp_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\threshold_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\tile_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\video_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\window_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layer_factory.cpp" />
@@ -128,6 +131,7 @@
     <CudaCompile Include="..\src\caffe\layers\deconv_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\dropout_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\eltwise_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\embed_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\euclidean_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\exp_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\filter_layer.cu" />
@@ -153,6 +157,7 @@
     <CudaCompile Include="..\src\caffe\layers\split_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tanh_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\threshold_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\tile_layer.cu" />
     <CudaCompile Include="..\src\caffe\util\im2col.cu" />
     <CudaCompile Include="..\src\caffe\util\math_functions.cu" />
     <CudaCompile Include="..\src\caffe\util\vol2col.cu" />
@@ -185,6 +190,7 @@
     <ClInclude Include="..\include\caffe\util\db_leveldb.hpp" />
     <ClInclude Include="..\include\caffe\util\db_lmdb.hpp" />
     <ClInclude Include="..\include\caffe\util\device_alternate.hpp" />
+    <ClInclude Include="..\include\caffe\util\gpu_util.cuh" />
     <ClInclude Include="..\include\caffe\util\hdf5.hpp" />
     <ClInclude Include="..\include\caffe\util\im2col.hpp" />
     <ClInclude Include="..\include\caffe\util\image_io.hpp" />
