@@ -252,6 +252,57 @@ namespace caffe{
 			EXPECT_EQ(this->blob_top_->shape(4), 10);
 		}
 	};
+
+	template <typename Dtype>
+	class LSTMUnitLayerTest {
+	public:
+		LSTMUnitLayerTest() :blob_bottom1_(new Blob<Dtype>()), blob_bottom2_(new Blob<Dtype>()),
+			blob_top1_(new Blob<Dtype>()), blob_top2_(new Blob<Dtype>()){
+			this->SetUp();
+		}
+		~LSTMUnitLayerTest(){ delete blob_bottom1_; delete blob_bottom2_; delete blob_top1_; delete blob_top2_; }
+
+	protected:
+		void SetUp(){
+			vector<int> shape1 = vector<int>(2, 0);
+			shape1[0] = 3; shape1[1] = 4;
+			blob_bottom1_->Reshape(shape1);
+
+			vector<int> shape2 = vector<int>(2, 0);
+			shape2[0] = 3; shape2[1] = 16;
+			blob_bottom2_->Reshape(shape2);
+
+			//fill the values
+			FillerParameter filler_param;
+			filler_param.set_value(1.);
+			GaussianFiller<Dtype> filler(filler_param);
+			filler.Fill(this->blob_bottom1_);
+			filler.Fill(this->blob_bottom2_);
+			blob_bottom_vec_.push_back(blob_bottom1_);
+			blob_bottom_vec_.push_back(blob_bottom2_);
+			blob_top_vec_.push_back(blob_top1_);
+			blob_top_vec_.push_back(blob_top2_);
+		}
+		Blob<Dtype>* const blob_bottom1_;
+		Blob<Dtype>* const blob_bottom2_;
+		Blob<Dtype>* const blob_top1_;
+		Blob<Dtype>* const blob_top2_;
+		vector<Blob<Dtype>*> blob_bottom_vec_;
+		vector<Blob<Dtype>*> blob_top_vec_;
+
+	public:
+		void StartTest(){
+			LayerParameter layer_param;
+
+			shared_ptr<Layer<Dtype>> layer(new LSTMUnitLayer<Dtype>(layer_param));
+			GradientChecker<Dtype> checker(1e-3, 1e-3);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			EXPECT_EQ(this->blob_top1_->shape(0), 3);
+			EXPECT_EQ(this->blob_top1_->shape(1), 4);
+			EXPECT_EQ(this->blob_top2_->shape(0), 3);
+			EXPECT_EQ(this->blob_top2_->shape(1), 4);
+		}
+	};
 }
 
 int main(int argc, char** argv){
@@ -274,5 +325,8 @@ int main(int argc, char** argv){
 	caffe::VideoSwitchLayerTest<float> test5;
 	test5.StartTest();
 	LOG(INFO) << "End test VideoSwitchLayer";
+	//caffe::LSTMUnitLayerTest<float> test6;
+	//test6.StartTest();
+	//LOG(INFO) << "End test LSTMUnitLayer";
 	return 0;
 }
