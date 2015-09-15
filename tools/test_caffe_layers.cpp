@@ -325,8 +325,8 @@ int main(int argc, char** argv){
 	caffe::VideoSwitchLayerTest<float> test5;
 	test5.StartTest();
 	LOG(INFO) << "End test VideoSwitchLayer";
-	//caffe::LSTMUnitLayerTest<float> test6;
-	//test6.StartTest();
-	//LOG(INFO) << "End test LSTMUnitLayer";
+	caffe::LSTMUnitLayerTest<float> test6;
+	test6.StartTest();
+	LOG(INFO) << "End test LSTMUnitLayer";
 	return 0;
 }
