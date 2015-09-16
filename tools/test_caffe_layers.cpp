@@ -303,6 +303,58 @@ namespace caffe{
 			EXPECT_EQ(this->blob_top2_->shape(1), 4);
 		}
 	};
+
+	template <typename Dtype>
+	class GridLSTMLayerTest {
+	public:
+		GridLSTMLayerTest() :blob_bottom_(new Blob<Dtype>()),
+			blob_top_(new Blob<Dtype>()){
+			this->SetUp();
+		}
+		~GridLSTMLayerTest(){ delete blob_bottom_; delete blob_top_; }
+
+	protected:
+		void SetUp(){
+			blob_bottom_->Reshape(video_shape(2, 3, 3, 2, 3));
+			//fill the values
+			FillerParameter filler_param;
+			filler_param.set_value(1.);
+			GaussianFiller<Dtype> filler(filler_param);
+			filler.Fill(this->blob_bottom_);
+			blob_bottom_vec_.push_back(blob_bottom_);
+			blob_top_vec_.push_back(blob_top_);
+		}
+		Blob<Dtype>* const blob_bottom_;
+		Blob<Dtype>* const blob_top_;
+		vector<Blob<Dtype>*> blob_bottom_vec_;
+		vector<Blob<Dtype>*> blob_top_vec_;
+
+	public:
+		void StartTest(){
+			LayerParameter layer_param;
+			InnerProductParameter* ip_param = layer_param.mutable_inner_product_param();
+			GridLSTMParameter* grid_param = layer_param.mutable_grid_lstm_param();
+			ip_param->set_num_output(2);
+			FillerParameter* fp1 = ip_param->mutable_weight_filler();
+			fp1->set_type("gaussian");
+			fp1->set_std(0.01);
+			FillerParameter* fp2 = ip_param->mutable_bias_filler();
+			fp2->set_type("constant");
+			fp2->set_value(0);
+			grid_param->add_reverse(true);
+			grid_param->add_reverse(true);
+			grid_param->add_reverse(true);
+
+			shared_ptr<Layer<Dtype>> layer(new GridLSTMLayer<Dtype>(layer_param));
+			GradientChecker<Dtype> checker(1e-2, 1e-3);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			EXPECT_EQ(this->blob_top_->shape(0), 2);
+			EXPECT_EQ(this->blob_top_->shape(1), 3);
+			EXPECT_EQ(this->blob_top_->shape(2), 3);
+			EXPECT_EQ(this->blob_top_->shape(3), 2);
+			EXPECT_EQ(this->blob_top_->shape(4), 3);
+		}
+	};
 }
 
 int main(int argc, char** argv){
@@ -310,6 +362,7 @@ int main(int argc, char** argv){
 	//caffe::Caffe::set_mode(caffe::Caffe::CPU);
 	caffe::Caffe::set_mode(caffe::Caffe::GPU);
 	caffe::Caffe::SetDevice(1);
+	/*
 	caffe::Convolution3DLayerTest<float> test1;
 	test1.StartTest();
 	LOG(INFO) << "End test Convolution3DLayer";
@@ -328,5 +381,9 @@ int main(int argc, char** argv){
 	caffe::LSTMUnitLayerTest<float> test6;
 	test6.StartTest();
 	LOG(INFO) << "End test LSTMUnitLayer";
+	*/
+	caffe::GridLSTMLayerTest<float> test7;
+	test7.StartTest();
+	LOG(INFO) << "End test GridLSTMLayer";
 	return 0;
 }

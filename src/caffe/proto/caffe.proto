@@ -401,6 +401,7 @@ message LayerParameter {
   optional Convolution3DParameter convolution3d_param = 140;
   optional Pooling3DParameter pooling3d_param = 141;
   optional VideoSwitchParameter video_switch_param = 142;
+  optional GridLSTMParameter grid_lstm_param = 143;
 }
 
 // Message that stores parameters used to apply transformation
@@ -700,6 +701,10 @@ message ImageDataParameter {
 message InfogainLossParameter {
   // Specify the infogain matrix source.
   optional string source = 1;
+}
+
+message GridLSTMParameter {
+  repeated bool reverse = 1; // if reverse the dim for the layer
 }
 
 message InnerProductParameter {

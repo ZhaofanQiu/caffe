@@ -424,6 +424,75 @@ namespace caffe {
 		int hidden_dim_;
 		vector<shared_ptr<Blob<Dtype> > > X_acts_;
 	};
+
+	/**
+	* @brief Implementation of Grid LSTM
+	*/
+	template <typename Dtype>
+	class GridLSTMLayer : public Layer<Dtype> {
+	public:
+		explicit GridLSTMLayer(const LayerParameter& param)
+			: Layer<Dtype>(param) {}
+
+		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "GridLSTM"; }
+
+		virtual inline int ExactNumBottomBlobs() const { return 1; }
+		virtual inline int ExactNumTopBlobs() const { return 1; }
+
+	protected:
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+		/// @brief The hidden and output dimension.
+		vector<bool> reverse_;
+		int num_seq_;
+		int hidden_dim_;
+		int grid_dim_;
+		bool bias_term_;
+		vector<vector<int> > link_idx_;
+		vector<int> order_;
+		//Data blobs
+		shared_ptr<Blob<Dtype> > zero_memory_;
+		vector<shared_ptr<Blob<Dtype> > > X_;
+		vector<shared_ptr<Blob<Dtype> > > X_1_;
+		vector<shared_ptr<Blob<Dtype> > > X_2_;
+		vector<shared_ptr<Blob<Dtype> > > X_3_;
+		vector<shared_ptr<Blob<Dtype> > > X_c_;
+		vector<shared_ptr<Blob<Dtype> > > X_h_;
+		vector<shared_ptr<Blob<Dtype> > > XH_h_;
+		vector<vector<shared_ptr<Blob<Dtype> > > > XH_h_k_;
+		vector<shared_ptr<Blob<Dtype> > > XH_x_;
+		vector<shared_ptr<Blob<Dtype> > > G_x_;
+
+		vector<vector<shared_ptr<Blob<Dtype> > > > C_i_;
+		vector<vector<shared_ptr<Blob<Dtype> > > > H_i_;
+		vector<vector<shared_ptr<Blob<Dtype> > > > H_i_1_;
+		vector<vector<shared_ptr<Blob<Dtype> > > > H_i_2_;
+		vector<vector<shared_ptr<Blob<Dtype> > > > G_h_;
+		//Layers
+
+		vector<shared_ptr<InnerProductLayer<Dtype> > > ip_xh_h_;
+		shared_ptr<InnerProductLayer<Dtype> > ip_xh_x_;
+		shared_ptr<ConcatLayer<Dtype> > concat_h_;
+		shared_ptr<ConcatLayer<Dtype> > concat_x_;
+		shared_ptr<LSTMUnitLayer<Dtype> > lstm_unit_h_;
+		shared_ptr<LSTMUnitLayer<Dtype> > lstm_unit_x_;
+		shared_ptr<SplitLayer<Dtype> > split_h_;
+		shared_ptr<SplitLayer<Dtype> > split_x_;
+		shared_ptr<SplitLayer<Dtype> > split_xh_h_;
+	};
 }  // namespace caffe
 
 #endif  // CAFFE_VIDEO_LAYERS_HPP_
