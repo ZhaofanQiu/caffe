@@ -154,14 +154,20 @@ namespace caffe {
 		for (int i = 0; i < this->input_num_; i++)
 		{
 			const Dtype* C_prev = bottom[i * 2]->gpu_data();
-			const Dtype* X_acts = X_acts_[i]->gpu_data();
+			const Dtype* X = bottom[i * 2 + 1]->gpu_data();
 			const Dtype* C = top[i * 2]->gpu_data();
 			const Dtype* H = top[i * 2 + 1]->gpu_data();
 			const Dtype* C_diff = top[i * 2]->gpu_diff();
 			const Dtype* H_diff = top[i * 2 + 1]->gpu_diff();
 			Dtype* C_prev_diff = bottom[i * 2]->mutable_gpu_diff();
 			Dtype* X_diff = bottom[i * 2 + 1]->mutable_gpu_diff();
+
+			Dtype* X_acts = X_acts_[i]->mutable_gpu_data();
 			Dtype* X_acts_diff = X_acts_[i]->mutable_gpu_diff();
+
+			LSTMActsForward<Dtype> << <CAFFE_GET_BLOCKS(X_count), CAFFE_CUDA_NUM_THREADS >> >(
+				X_count, hidden_dim_, X, X_acts);
+			CUDA_POST_KERNEL_CHECK;
 			LSTMUnitBackward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
 				<< <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(count, hidden_dim_,
 				C_prev, X_acts, C, H, C_diff, H_diff, C_prev_diff, X_acts_diff);

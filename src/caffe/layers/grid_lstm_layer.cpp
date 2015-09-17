@@ -288,7 +288,6 @@ namespace caffe {
 	template <typename Dtype>
 	void GridLSTMLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top) {
-		caffe_memset(sizeof(Dtype) * zero_memory_->count(), 0, zero_memory_->mutable_cpu_data());
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
 
@@ -426,8 +425,6 @@ namespace caffe {
 	template <typename Dtype>
 	void GridLSTMLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
 		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-
-		caffe_memset(sizeof(Dtype) * zero_memory_->count(), 0, zero_memory_->mutable_cpu_diff());
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
 

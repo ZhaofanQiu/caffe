@@ -312,14 +312,14 @@
     <ClCompile Include="..\src\caffe\layers\video_switch_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\test_caffe_layers.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\caffe\layers\lstm_unit_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
     <ClCompile Include="..\src\caffe\layers\grid_lstm_layer.cpp">
       <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\caffe-light.cpp">
+      <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

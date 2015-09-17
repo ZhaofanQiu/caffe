@@ -17,26 +17,33 @@
 namespace caffe {
 
 	template <typename Dtype>
+	__global__ void Blob2Xd(int n, const Dtype* blob, int d, 
+		int num_seq, Dtype* xd) {
+		CUDA_KERNEL_LOOP(index, n) {
+			xd[index] = blob[index * num_seq + d];
+		}
+	}
+
+	template <typename Dtype>
+	__global__ void Xd2Blob(int n, const Dtype* xd, int d,
+		int num_seq, Dtype* blob) {
+		CUDA_KERNEL_LOOP(index, n) {
+			blob[index * num_seq + d] = xd[index];
+		}
+	}
+
+	template <typename Dtype>
 	void GridLSTMLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top) {
-		caffe_gpu_memset(sizeof(Dtype) * zero_memory_->count(), 0, zero_memory_->mutable_gpu_data());
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
-
 		// 1. copy bottom to X_.
-		int idx = 0;
 		const Dtype* bottom_data = bottom[0]->gpu_data();
-		for (int n = 0; n < num; n++)
+		for (int d = 0; d < num_seq_; d++)
 		{
-			for (int c = 0; c < channels; c++)
-			{
-				for (int d = 0; d < num_seq_; d++)
-				{
-					Dtype* X_data = X_[d]->mutable_gpu_data();
-					X_data[idx] = *(bottom_data++);
-				}
-				idx++;
-			}
+			Dtype* X_data = X_[d]->mutable_gpu_data();
+			Blob2Xd<Dtype> << <CAFFE_GET_BLOCKS(num * channels), CAFFE_CUDA_NUM_THREADS >> >(
+				num * channels, bottom_data, d, num_seq_, X_data);
 		}
 		// 1.5 split
 		for (int i = 0; i < num_seq_; i++)
@@ -138,19 +145,12 @@ namespace caffe {
 			lstm_unit_x_->Forward(lstm_bottom_vec, lstm_top_vec);
 		}
 		//8. copy top.
-		idx = 0;
 		Dtype* top_data = top[0]->mutable_gpu_data();
-		for (int n = 0; n < num; n++)
+		for (int d = 0; d < num_seq_; d++)
 		{
-			for (int c = 0; c < channels; c++)
-			{
-				for (int d = 0; d < num_seq_; d++)
-				{
-					const Dtype* X_data = X_h_[d]->gpu_data();
-					*(top_data++) = X_data[idx];
-				}
-				idx++;
-			}
+			const Dtype* X_data = X_h_[d]->gpu_data();
+			Xd2Blob<Dtype> << <CAFFE_GET_BLOCKS(num * channels), CAFFE_CUDA_NUM_THREADS >> >(
+				num * channels, X_data, d, num_seq_, top_data);
 		}
 	}
 
@@ -158,25 +158,16 @@ namespace caffe {
 	void GridLSTMLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
 		const vector<bool>& propagate_down,
 		const vector<Blob<Dtype>*>& bottom) {
-
-		caffe_gpu_memset(sizeof(Dtype) * zero_memory_->count(), 0, zero_memory_->mutable_gpu_diff());
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
 		
 		//8. copy top.
-		int idx = 0;
-		const Dtype* top_data = top[0]->gpu_diff();
-		for (int n = 0; n < num; n++)
+		const Dtype* top_diff = top[0]->gpu_diff();
+		for (int d = 0; d < num_seq_; d++)
 		{
-			for (int c = 0; c < channels; c++)
-			{
-				for (int d = 0; d < num_seq_; d++)
-				{
-					Dtype* X_diff = X_h_[d]->mutable_gpu_diff();
-					X_diff[idx] = *(top_data++);
-				}
-				idx++;
-			}
+			Dtype* X_diff = X_h_[d]->mutable_gpu_diff();
+			Blob2Xd<Dtype> << <CAFFE_GET_BLOCKS(num * channels), CAFFE_CUDA_NUM_THREADS >> >(
+				num * channels, top_diff, d, num_seq_, X_diff);
 		}
 		// For all sequence run lstm2.
 		for (int d = 0; d < num_seq_; d++)
@@ -298,19 +289,12 @@ namespace caffe {
 		// 1. copy bottom to X_.
 		if (propagate_down[0])
 		{
-			int idx = 0;
-			Dtype* bottom_data = bottom[0]->mutable_gpu_diff();
-			for (int n = 0; n < num; n++)
+			Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+			for (int d = 0; d < num_seq_; d++)
 			{
-				for (int c = 0; c < channels; c++)
-				{
-					for (int d = 0; d < num_seq_; d++)
-					{
-						const Dtype* X_data = X_[d]->gpu_diff();
-						*(bottom_data++) = X_data[idx];
-					}
-					idx++;
-				}
+				const Dtype* X_diff = X_[d]->gpu_diff();
+				Xd2Blob<Dtype> << <CAFFE_GET_BLOCKS(num * channels), CAFFE_CUDA_NUM_THREADS >> >(
+					num * channels, X_diff, d, num_seq_, bottom_diff);
 			}
 		}
 	}
