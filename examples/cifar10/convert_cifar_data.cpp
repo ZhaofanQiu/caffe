@@ -17,6 +17,14 @@
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/db.hpp"
 
+#if GTEST_OS_WINDOWS_MOBILE  // Windows CE does not define _snprintf_s.
+# define snprintf _snprintf
+#elif _MSC_VER >= 1400  // VC 8.0 and later deprecate snprintf and _snprintf.
+# define snprintf _snprintf_s
+#elif _MSC_VER
+# define snprintf _snprintf
+#endif  // GTEST_OS_WINDOWS_MOBILE
+
 using caffe::Datum;
 using boost::scoped_ptr;
 using std::string;

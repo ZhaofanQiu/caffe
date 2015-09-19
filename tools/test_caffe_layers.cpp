@@ -348,35 +348,9 @@ namespace caffe{
 			shared_ptr<Layer<Dtype>> layer(new GridLSTMLayer<Dtype>(layer_param));
 			GradientChecker<Dtype> checker(1e-2, 1e-3);
 			layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-
-			caffe::Caffe::set_mode(caffe::Caffe::CPU);
-			layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
-			memcpy(blob_top_->mutable_cpu_diff(), blob_top_->mutable_cpu_data(), blob_top_->count() * sizeof(Dtype));
-			vector<bool> prop(1, true);
-			layer->Backward(this->blob_top_vec_, prop, this->blob_bottom_vec_);
-
-			vector<Dtype> cpu_diff = vector<Dtype>(this->blob_bottom_->count(), (Dtype)0);
-			memcpy(&cpu_diff[0], this->blob_bottom_->cpu_diff(), 
-				sizeof(Dtype) * this->blob_bottom_->count());
-
-			caffe::Caffe::set_mode(caffe::Caffe::GPU);
-			caffe::Caffe::SetDevice(12);
-			layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
-			memcpy(blob_top_->mutable_cpu_diff(), blob_top_->mutable_cpu_data(), blob_top_->count() * sizeof(Dtype));
-			layer->Backward(this->blob_top_vec_, prop, this->blob_bottom_vec_);
-
-			const Dtype* gpu_diff = this->blob_bottom_->cpu_diff();
-			for (int i = 0; i < this->blob_bottom_->count(); i++)
-			{
-				LOG(INFO) << "idx: " << i
-					<< "; cpu_diff: " << cpu_diff[i]
-					<< "; gpu_diff: " << gpu_diff[i]
-					<< "; diff: " << std::abs(cpu_diff[i] - gpu_diff[i]);
-			}
-
-			//checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
 			EXPECT_EQ(this->blob_top_->shape(0), 2);
-			EXPECT_EQ(this->blob_top_->shape(1), 3);
+			EXPECT_EQ(this->blob_top_->shape(1), 2);
 			EXPECT_EQ(this->blob_top_->shape(2), 3);
 			EXPECT_EQ(this->blob_top_->shape(3), 2);
 			EXPECT_EQ(this->blob_top_->shape(4), 3);
@@ -387,9 +361,9 @@ namespace caffe{
 int main(int argc, char** argv){
 	FLAGS_logtostderr = 1;
 	//caffe::Caffe::set_mode(caffe::Caffe::CPU);
+	/*
 	caffe::Caffe::set_mode(caffe::Caffe::GPU);
 	caffe::Caffe::SetDevice(1);
-	/*
 	caffe::Convolution3DLayerTest<float> test1;
 	test1.StartTest();
 	LOG(INFO) << "End test Convolution3DLayer";
