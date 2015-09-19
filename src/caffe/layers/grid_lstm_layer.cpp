@@ -24,9 +24,19 @@ namespace caffe {
 		grid_dim_ = bottom[0]->num_axes() - 2;
 		reverse_ = vector<bool>(grid_dim_, false);
 		CHECK_GE(grid_dim_, reverse_.size());
+
+		CHECK(this->layer_param().inner_product_param().has_num_output());
 		for (int i = 0; i < this->layer_param().grid_lstm_param().reverse_size(); i++)
 		{
 			reverse_[i] = this->layer_param().grid_lstm_param().reverse(i);
+		}
+		if (this->layer_param().grid_lstm_param().has_num_output())
+		{
+			output_dim_ = this->layer_param().grid_lstm_param().num_output();
+		}
+		else
+		{
+			output_dim_ = this->layer_param().inner_product_param().num_output();
 		}
 		num_seq_ = bottom[0]->count(2);
 		hidden_dim_ = this->layer_param().inner_product_param().num_output();
@@ -64,8 +74,9 @@ namespace caffe {
 			}
 		}
 		vector<bool> finish(num_seq_, false);
-		order_.clear();
-		while (order_.size() != num_seq_)
+		order_ = vector<int>(num_seq_, -1);
+		int o_t = 0;
+		while (o_t != num_seq_)
 		{
 			for (int i = 0; i < num_seq_; i++)
 			{
@@ -84,7 +95,7 @@ namespace caffe {
 				if (flag)
 				{
 					finish[i] = true;
-					order_.push_back(i);
+					order_[o_t++] = i;
 				}
 			}
 		}
@@ -116,7 +127,7 @@ namespace caffe {
 
 		vector<int> g_x_shape(2, 0);
 		g_x_shape[0] = x_shape[0];
-		g_x_shape[1] = x_shape[1] * 4;
+		g_x_shape[1] = output_dim_;
 
 		zero_memory_.reset(new Blob<Dtype>(h_shape));
 
@@ -124,9 +135,6 @@ namespace caffe {
 		X_.resize(num_seq_);
 		X_1_.resize(num_seq_);
 		X_2_.resize(num_seq_);
-		X_3_.resize(num_seq_);
-		X_c_.resize(num_seq_);
-		X_h_.resize(num_seq_);
 		XH_h_.resize(num_seq_);
 		XH_h_k_.resize(num_seq_);
 		XH_x_.resize(num_seq_);
@@ -141,10 +149,6 @@ namespace caffe {
 			X_[i].reset(new Blob<Dtype>(x_shape));
 			X_1_[i].reset(new Blob<Dtype>(x_shape));
 			X_2_[i].reset(new Blob<Dtype>(x_shape));
-			X_3_[i].reset(new Blob<Dtype>(x_shape));
-			X_c_[i].reset(new Blob<Dtype>(x_shape));
-			X_h_[i].reset(new Blob<Dtype>(x_shape));
-			X_h_[i].reset(new Blob<Dtype>(x_shape));
 			XH_h_[i].reset(new Blob<Dtype>(xh_shape));
 			XH_x_[i].reset(new Blob<Dtype>(xh_shape));
 			G_x_[i].reset(new Blob<Dtype>(g_x_shape));
@@ -173,7 +177,7 @@ namespace caffe {
 		vector<Blob<Dtype>*> split1_top_vec(2, H_i_1_[0][0].get());
 
 		vector<Blob<Dtype>*> split2_bottom_vec(1, X_[0].get());
-		vector<Blob<Dtype>*> split2_top_vec(3, X_1_[0].get());
+		vector<Blob<Dtype>*> split2_top_vec(2, X_1_[0].get());
 
 		vector<Blob<Dtype>*> split3_bottom_vec(1, XH_h_[0].get());
 		vector<Blob<Dtype>*> split3_top_vec(grid_dim_, XH_h_k_[0][0].get());
@@ -207,13 +211,6 @@ namespace caffe {
 			lstm1_top_vec[i * 2 + 1] = H_i_[0][0].get();
 		}
 
-		vector<Blob<Dtype>*> lstm2_bottom_vec(2, NULL);
-		lstm2_bottom_vec[0] = X_[0].get();
-		lstm2_bottom_vec[1] = G_x_[0].get();
-		vector<Blob<Dtype>*> lstm2_top_vec(2, NULL);
-		lstm2_top_vec[0] = X_c_[0].get();
-		lstm2_top_vec[1] = X_h_[0].get();
-
 		int top_blob_ = 0;
 		ip_xh_h_.resize(grid_dim_);
 		for (int i = 0; i < grid_dim_; i++)
@@ -235,7 +232,7 @@ namespace caffe {
 		}
 		LayerParameter param2;
 		param2.mutable_inner_product_param()->CopyFrom(this->layer_param().inner_product_param());
-		param2.mutable_inner_product_param()->set_num_output(bottom[0]->shape(1) * 4);
+		param2.mutable_inner_product_param()->set_num_output(output_dim_);
 		ip_xh_x_.reset(new InnerProductLayer<Dtype>(param2));
 		ip_xh_x_->SetUp(xh_vec, g_x_vec);
 		blobs_[top_blob_].reset(new Blob<Dtype>(ip_xh_x_->blobs()[0]->shape()));
@@ -261,19 +258,15 @@ namespace caffe {
 		lstm_unit_h_->SetUp(lstm1_bottom_vec, lstm1_top_vec);
 
 		LayerParameter param6;
-		lstm_unit_x_.reset(new LSTMUnitLayer<Dtype>(param6));
-		lstm_unit_x_->SetUp(lstm2_bottom_vec, lstm2_top_vec);
-
-		LayerParameter param7;
-		split_h_.reset(new SplitLayer<Dtype>(param7));
+		split_h_.reset(new SplitLayer<Dtype>(param6));
 		split_h_->SetUp(split1_bottom_vec, split1_top_vec);
 
-		LayerParameter param8;
-		split_x_.reset(new SplitLayer<Dtype>(param8));
+		LayerParameter param7;
+		split_x_.reset(new SplitLayer<Dtype>(param7));
 		split_x_->SetUp(split2_bottom_vec, split2_top_vec);
 
-		LayerParameter param9;
-		split_xh_h_.reset(new SplitLayer<Dtype>(param9));
+		LayerParameter param8;
+		split_xh_h_.reset(new SplitLayer<Dtype>(param8));
 		split_xh_h_->SetUp(split3_bottom_vec, split3_top_vec);
 
 	}
@@ -281,8 +274,9 @@ namespace caffe {
 	template <typename Dtype>
 	void GridLSTMLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top) {
-
-		top[0]->Reshape(bottom[0]->shape());
+		vector<int> top_shape = bottom[0]->shape();
+		top_shape[1] = output_dim_;
+		top[0]->Reshape(top_shape);
 	}
 
 	template <typename Dtype>
@@ -290,7 +284,27 @@ namespace caffe {
 		const vector<Blob<Dtype>*>& top) {
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
-
+		for (int i = 0; i < grid_dim_; i++)
+		{
+			if (bias_term_)
+			{
+				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i * 2]));
+				(ip_xh_h_[i]->blobs()[1])->ShareData(*(blobs_[i * 2 + 1]));
+			}
+			else
+			{
+				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i]));
+			}
+		}
+		if (bias_term_)
+		{
+			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_ * 2]));
+			(ip_xh_x_->blobs()[1])->ShareData(*(blobs_[grid_dim_ * 2 + 1]));
+		}
+		else
+		{
+			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_]));
+		}
 		// 1. copy bottom to X_.
 		int idx = 0;
 		const Dtype* bottom_data = bottom[0]->cpu_data();
@@ -310,10 +324,9 @@ namespace caffe {
 		for (int i = 0; i < num_seq_; i++)
 		{
 			vector<Blob<Dtype>*> split2_bottom_vec(1, X_[i].get());
-			vector<Blob<Dtype>*> split2_top_vec(3, NULL);
+			vector<Blob<Dtype>*> split2_top_vec(2, NULL);
 			split2_top_vec[0] = X_1_[i].get();
 			split2_top_vec[1] = X_2_[i].get();
-			split2_top_vec[2] = X_3_[i].get();
 			split_x_->Forward(split2_bottom_vec, split2_top_vec);
 		}
 		// For all sequence run lstm1.
@@ -349,6 +362,7 @@ namespace caffe {
 			{
 				vector<Blob<Dtype>*> ip_bottom_vec(1, XH_h_k_[dp][i].get());
 				vector<Blob<Dtype>*> ip_top_vec(1, G_h_[dp][i].get());
+
 				ip_xh_h_[i]->Forward(ip_bottom_vec, ip_top_vec);
 			}
 			//4. LSTM Unit 1.
@@ -395,26 +409,19 @@ namespace caffe {
 			//6. forward gate.
 			vector<Blob<Dtype>*> ip_bottom_vec(1, XH_x_[dp].get());
 			vector<Blob<Dtype>*> ip_top_vec(1, G_x_[dp].get());
+
 			ip_xh_x_->Forward(ip_bottom_vec, ip_top_vec);
-			//7. LSTM Unit 2.
-			vector<Blob<Dtype>*> lstm_bottom_vec(2, NULL);
-			vector<Blob<Dtype>*> lstm_top_vec(2, NULL);
-			lstm_bottom_vec[0] = X_3_[dp].get();
-			lstm_bottom_vec[1] = G_x_[dp].get();
-			lstm_top_vec[0] = X_c_[dp].get();
-			lstm_top_vec[1] = X_h_[dp].get();
-			lstm_unit_x_->Forward(lstm_bottom_vec, lstm_top_vec);
 		}
 		//8. copy top.
 		idx = 0;
 		Dtype* top_data = top[0]->mutable_cpu_data();
 		for (int n = 0; n < num; n++)
 		{
-			for (int c = 0; c < channels; c++)
+			for (int c = 0; c < output_dim_; c++)
 			{
 				for (int d = 0; d < num_seq_; d++)
 				{
-					const Dtype* X_data = X_h_[d]->cpu_data();
+					const Dtype* X_data = G_x_[d]->cpu_data();
 					*(top_data++) = X_data[idx];
 				}
 				idx++;
@@ -428,16 +435,43 @@ namespace caffe {
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
 
+		for (int i = 0; i < grid_dim_; i++)
+		{
+			if (bias_term_)
+			{
+				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i * 2]));
+				(ip_xh_h_[i]->blobs()[0])->ShareDiff(*(blobs_[i * 2]));
+				(ip_xh_h_[i]->blobs()[1])->ShareData(*(blobs_[i * 2 + 1]));
+				(ip_xh_h_[i]->blobs()[1])->ShareDiff(*(blobs_[i * 2 + 1]));
+			}
+			else
+			{
+				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i]));
+				(ip_xh_h_[i]->blobs()[0])->ShareDiff(*(blobs_[i]));
+			}
+		}
+		if (bias_term_)
+		{
+			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_ * 2]));
+			(ip_xh_x_->blobs()[0])->ShareDiff(*(blobs_[grid_dim_ * 2]));
+			(ip_xh_x_->blobs()[1])->ShareData(*(blobs_[grid_dim_ * 2 + 1]));
+			(ip_xh_x_->blobs()[1])->ShareDiff(*(blobs_[grid_dim_ * 2 + 1]));
+		}
+		else
+		{
+			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_]));
+			(ip_xh_x_->blobs()[0])->ShareDiff(*(blobs_[grid_dim_]));
+		}
 		//8. copy top.
 		int idx = 0;
 		const Dtype* top_data = top[0]->cpu_diff();
 		for (int n = 0; n < num; n++)
 		{
-			for (int c = 0; c < channels; c++)
+			for (int c = 0; c < output_dim_; c++)
 			{
 				for (int d = 0; d < num_seq_; d++)
 				{
-					Dtype* X_diff = X_h_[d]->mutable_cpu_diff();
+					Dtype* X_diff = G_x_[d]->mutable_cpu_diff();
 					X_diff[idx] = *(top_data++);
 				}
 				idx++;
@@ -447,20 +481,12 @@ namespace caffe {
 		for (int d = 0; d < num_seq_; d++)
 		{
 			int dp = order_[num_seq_ - 1 - d];
-			//7. LSTM Unit 2.
-			vector<Blob<Dtype>*> lstm_bottom_vec(2, NULL);
-			vector<Blob<Dtype>*> lstm_top_vec(2, NULL);
-			vector<bool> lstm_prop(2, true);
-			lstm_bottom_vec[0] = X_3_[dp].get();
-			lstm_bottom_vec[1] = G_x_[dp].get();
-			lstm_top_vec[0] = X_c_[dp].get();
-			lstm_top_vec[1] = X_h_[dp].get();
-			lstm_unit_x_->Backward(lstm_top_vec, lstm_prop, lstm_bottom_vec);
 			//6. forward gate.
 			vector<Blob<Dtype>*> ip_bottom_vec(1, XH_x_[dp].get());
 			vector<Blob<Dtype>*> ip_top_vec(1, G_x_[dp].get());
 			vector<bool> ip_prop(1, true);
 			ip_xh_x_->Backward(ip_top_vec, ip_prop, ip_bottom_vec);
+
 			//5. concat x & h_t
 			vector<Blob<Dtype>*> concat_bottom_vec(1 + grid_dim_, NULL);
 			vector<bool> concat_prop(1 + grid_dim_, true);
@@ -554,10 +580,9 @@ namespace caffe {
 		{
 			vector<Blob<Dtype>*> split2_bottom_vec(1, X_[i].get());
 			vector<bool> split2_prop(1, true);
-			vector<Blob<Dtype>*> split2_top_vec(3, NULL);
+			vector<Blob<Dtype>*> split2_top_vec(2, NULL);
 			split2_top_vec[0] = X_1_[i].get();
 			split2_top_vec[1] = X_2_[i].get();
-			split2_top_vec[2] = X_3_[i].get();
 			split_x_->Backward(split2_top_vec, split2_prop, split2_bottom_vec);
 		}
 		// 1. copy bottom to X_.

@@ -37,6 +37,27 @@ namespace caffe {
 		const vector<Blob<Dtype>*>& top) {
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
+		for (int i = 0; i < grid_dim_; i++)
+		{
+			if (bias_term_)
+			{
+				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i * 2]));
+				(ip_xh_h_[i]->blobs()[1])->ShareData(*(blobs_[i * 2 + 1]));
+			}
+			else
+			{
+				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i]));
+			}
+		}
+		if (bias_term_)
+		{
+			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_ * 2]));
+			(ip_xh_x_->blobs()[1])->ShareData(*(blobs_[grid_dim_ * 2 + 1]));
+		}
+		else
+		{
+			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_]));
+		}
 		// 1. copy bottom to X_.
 		const Dtype* bottom_data = bottom[0]->gpu_data();
 		for (int d = 0; d < num_seq_; d++)
@@ -49,10 +70,9 @@ namespace caffe {
 		for (int i = 0; i < num_seq_; i++)
 		{
 			vector<Blob<Dtype>*> split2_bottom_vec(1, X_[i].get());
-			vector<Blob<Dtype>*> split2_top_vec(3, NULL);
+			vector<Blob<Dtype>*> split2_top_vec(2, NULL);
 			split2_top_vec[0] = X_1_[i].get();
 			split2_top_vec[1] = X_2_[i].get();
-			split2_top_vec[2] = X_3_[i].get();
 			split_x_->Forward(split2_bottom_vec, split2_top_vec);
 		}
 		// For all sequence run lstm1.
@@ -135,22 +155,14 @@ namespace caffe {
 			vector<Blob<Dtype>*> ip_bottom_vec(1, XH_x_[dp].get());
 			vector<Blob<Dtype>*> ip_top_vec(1, G_x_[dp].get());
 			ip_xh_x_->Forward(ip_bottom_vec, ip_top_vec);
-			//7. LSTM Unit 2.
-			vector<Blob<Dtype>*> lstm_bottom_vec(2, NULL);
-			vector<Blob<Dtype>*> lstm_top_vec(2, NULL);
-			lstm_bottom_vec[0] = X_3_[dp].get();
-			lstm_bottom_vec[1] = G_x_[dp].get();
-			lstm_top_vec[0] = X_c_[dp].get();
-			lstm_top_vec[1] = X_h_[dp].get();
-			lstm_unit_x_->Forward(lstm_bottom_vec, lstm_top_vec);
 		}
 		//8. copy top.
 		Dtype* top_data = top[0]->mutable_gpu_data();
 		for (int d = 0; d < num_seq_; d++)
 		{
-			const Dtype* X_data = X_h_[d]->gpu_data();
-			Xd2Blob<Dtype> << <CAFFE_GET_BLOCKS(num * channels), CAFFE_CUDA_NUM_THREADS >> >(
-				num * channels, X_data, d, num_seq_, top_data);
+			const Dtype* X_data = G_x_[d]->gpu_data();
+			Xd2Blob<Dtype> << <CAFFE_GET_BLOCKS(num * output_dim_), CAFFE_CUDA_NUM_THREADS >> >(
+				num * output_dim_, X_data, d, num_seq_, top_data);
 		}
 	}
 
@@ -160,28 +172,45 @@ namespace caffe {
 		const vector<Blob<Dtype>*>& bottom) {
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
-		
+		for (int i = 0; i < grid_dim_; i++)
+		{
+			if (bias_term_)
+			{
+				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i * 2]));
+				(ip_xh_h_[i]->blobs()[0])->ShareDiff(*(blobs_[i * 2]));
+				(ip_xh_h_[i]->blobs()[1])->ShareData(*(blobs_[i * 2 + 1]));
+				(ip_xh_h_[i]->blobs()[1])->ShareDiff(*(blobs_[i * 2 + 1]));
+			}
+			else
+			{
+				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i]));
+				(ip_xh_h_[i]->blobs()[0])->ShareDiff(*(blobs_[i]));
+			}
+		}
+		if (bias_term_)
+		{
+			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_ * 2]));
+			(ip_xh_x_->blobs()[0])->ShareDiff(*(blobs_[grid_dim_ * 2]));
+			(ip_xh_x_->blobs()[1])->ShareData(*(blobs_[grid_dim_ * 2 + 1]));
+			(ip_xh_x_->blobs()[1])->ShareDiff(*(blobs_[grid_dim_ * 2 + 1]));
+		}
+		else
+		{
+			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_]));
+			(ip_xh_x_->blobs()[0])->ShareDiff(*(blobs_[grid_dim_]));
+		}
 		//8. copy top.
 		const Dtype* top_diff = top[0]->gpu_diff();
 		for (int d = 0; d < num_seq_; d++)
 		{
-			Dtype* X_diff = X_h_[d]->mutable_gpu_diff();
-			Blob2Xd<Dtype> << <CAFFE_GET_BLOCKS(num * channels), CAFFE_CUDA_NUM_THREADS >> >(
-				num * channels, top_diff, d, num_seq_, X_diff);
+			Dtype* X_diff = G_x_[d]->mutable_gpu_diff();
+			Blob2Xd<Dtype> << <CAFFE_GET_BLOCKS(num * output_dim_), CAFFE_CUDA_NUM_THREADS >> >(
+				num * output_dim_, top_diff, d, num_seq_, X_diff);
 		}
 		// For all sequence run lstm2.
 		for (int d = 0; d < num_seq_; d++)
 		{
 			int dp = order_[num_seq_ - 1 - d];
-			//7. LSTM Unit 2.
-			vector<Blob<Dtype>*> lstm_bottom_vec(2, NULL);
-			vector<Blob<Dtype>*> lstm_top_vec(2, NULL);
-			vector<bool> lstm_prop(2, true);
-			lstm_bottom_vec[0] = X_3_[dp].get();
-			lstm_bottom_vec[1] = G_x_[dp].get();
-			lstm_top_vec[0] = X_c_[dp].get();
-			lstm_top_vec[1] = X_h_[dp].get();
-			lstm_unit_x_->Backward(lstm_top_vec, lstm_prop, lstm_bottom_vec);
 			//6. forward gate.
 			vector<Blob<Dtype>*> ip_bottom_vec(1, XH_x_[dp].get());
 			vector<Blob<Dtype>*> ip_top_vec(1, G_x_[dp].get());
@@ -280,10 +309,9 @@ namespace caffe {
 		{
 			vector<Blob<Dtype>*> split2_bottom_vec(1, X_[i].get());
 			vector<bool> split2_prop(1, true);
-			vector<Blob<Dtype>*> split2_top_vec(3, NULL);
+			vector<Blob<Dtype>*> split2_top_vec(2, NULL);
 			split2_top_vec[0] = X_1_[i].get();
 			split2_top_vec[1] = X_2_[i].get();
-			split2_top_vec[2] = X_3_[i].get();
 			split_x_->Backward(split2_top_vec, split2_prop, split2_bottom_vec);
 		}
 		// 1. copy bottom to X_.
