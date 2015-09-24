@@ -66,6 +66,8 @@ class BaseConvolutionLayer : public Layer<Dtype> {
 
   int kernel_h_, kernel_w_;
   int stride_h_, stride_w_;
+  int filter_stride_h_, filter_stride_w_;
+  int kernel_h_eff_, kernel_w_eff_;
   int num_;
   int channels_;
   int pad_h_, pad_w_;
@@ -77,24 +79,28 @@ class BaseConvolutionLayer : public Layer<Dtype> {
   bool is_1x1_;
 
  private:
-  // wrap im2col/col2im so we don't have to remember the (long) argument lists
-  inline void conv_im2col_cpu(const Dtype* data, Dtype* col_buff) {
-    im2col_cpu(data, conv_in_channels_, conv_in_height_, conv_in_width_,
-        kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_, col_buff);
-  }
-  inline void conv_col2im_cpu(const Dtype* col_buff, Dtype* data) {
-    col2im_cpu(col_buff, conv_in_channels_, conv_in_height_, conv_in_width_,
-        kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_, data);
-  }
+	 // wrap im2col/col2im so we don't have to remember the (long) argument lists
+	 inline void conv_im2col_cpu(const Dtype* data, Dtype* col_buff) {
+		 im2col_cpu(data, conv_in_channels_, conv_in_height_, conv_in_width_,
+			 kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_,
+			 filter_stride_h_, filter_stride_w_, col_buff);
+	 }
+	 inline void conv_col2im_cpu(const Dtype* col_buff, Dtype* data) {
+		 col2im_cpu(col_buff, conv_in_channels_, conv_in_height_, conv_in_width_,
+			 kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_,
+			 filter_stride_h_, filter_stride_w_, data);
+	 }
 #ifndef CPU_ONLY
-  inline void conv_im2col_gpu(const Dtype* data, Dtype* col_buff) {
-    im2col_gpu(data, conv_in_channels_, conv_in_height_, conv_in_width_,
-        kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_, col_buff);
-  }
-  inline void conv_col2im_gpu(const Dtype* col_buff, Dtype* data) {
-    col2im_gpu(col_buff, conv_in_channels_, conv_in_height_, conv_in_width_,
-        kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_, data);
-  }
+	 inline void conv_im2col_gpu(const Dtype* data, Dtype* col_buff) {
+		 im2col_gpu(data, conv_in_channels_, conv_in_height_, conv_in_width_,
+			 kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_,
+			 filter_stride_h_, filter_stride_w_, col_buff);
+	 }
+	 inline void conv_col2im_gpu(const Dtype* col_buff, Dtype* data) {
+		 col2im_gpu(col_buff, conv_in_channels_, conv_in_height_, conv_in_width_,
+			 kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_,
+			 filter_stride_h_, filter_stride_w_, data);
+	 }
 #endif
 
   int conv_out_channels_;
@@ -107,7 +113,7 @@ class BaseConvolutionLayer : public Layer<Dtype> {
   int col_offset_;
   int output_offset_;
 
-  Blob<Dtype> col_buffer_;
+  static Blob<Dtype> col_buffer_;
   Blob<Dtype> bias_multiplier_;
 };
 
@@ -289,6 +295,7 @@ class Im2colLayer : public Layer<Dtype> {
 
   int kernel_h_, kernel_w_;
   int stride_h_, stride_w_;
+  int filter_stride_h_, filter_stride_w_;
   int channels_;
   int height_, width_;
   int pad_h_, pad_w_;

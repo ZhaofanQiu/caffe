@@ -71,7 +71,7 @@ namespace caffe {
 		VolumeDatum datum;
 		datum.ParseFromString(iter_->value().ToString());
 		// image
-		const int batch_size = this->layer_param_.video_data_param().batch_size();
+		const int batch_size = this->layer_param_.data_param().batch_size();
 		CHECK_GT(batch_size, 0) << "Positive batch size required";
 		int crop_size = this->layer_param_.data_param().crop_size();
 		const unsigned int prefetch_rng_seed = caffe_rng_rand();
@@ -171,7 +171,6 @@ namespace caffe {
 		int size = channels * length * height * width;
 
 		Dtype* prefetch_data = batch->data_.mutable_cpu_data();
-		Dtype* prefetch_label = batch->label_.mutable_cpu_data();
 
 		const Dtype* mean = this->data_mean_.cpu_data();
 		char *data_buffer = NULL;
@@ -252,6 +251,7 @@ namespace caffe {
 			}
 
 			if (this->output_labels_) {
+				Dtype* prefetch_label = batch->label_.mutable_cpu_data();
 				prefetch_label[item_id] = datum.label();
 			}
 			// go to the next iteration

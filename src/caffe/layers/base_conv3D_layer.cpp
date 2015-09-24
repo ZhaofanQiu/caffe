@@ -17,6 +17,9 @@
 
 namespace caffe {
 
+	template <typename Dtype>
+	Blob<Dtype> BaseConvolution3DLayer<Dtype>::col_buffer_;
+
 template <typename Dtype>
 void BaseConvolution3DLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
@@ -36,9 +39,15 @@ void BaseConvolution3DLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& botto
   pad_ = conv_param.pad();
   stride_l_ = conv_param.stride_l();
   stride_ = conv_param.stride();
+  filter_stride_ = conv_param.filter_stride();
+  filter_stride_l_ = conv_param.filter_stride_l();
+  kernel_eff_ = kernel_size_ + (kernel_size_ - 1) * (filter_stride_ - 1);
+  kernel_eff_l_ = kernel_l_ + (kernel_l_ - 1) * (filter_stride_l_ - 1);
+
   // Special case: im2col is the identity for 1x1 convolution with stride 1
   // and no padding, so flag for skipping the buffer and transformation.
   is_1x1_ = kernel_l_ == 1 && kernel_size_ == 1
+	  && filter_stride_ == 1 && filter_stride_l_ == 1
       && stride_l_ == 1 && stride_ && pad_l_ == 0 && pad_ == 0;
   // Configure output channels and groups.
   channels_ = bottom[0]->shape(1);

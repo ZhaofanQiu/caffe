@@ -521,6 +521,7 @@ message ContrastiveLossParameter {
   optional bool legacy_version = 2 [default = false];
 }
 
+// Message that stores parameters used by ConvolutionLayer
 message ConvolutionParameter {
   optional uint32 num_output = 1; // The number of outputs for the layer
   optional bool bias_term = 2 [default = true]; // whether to have bias terms
@@ -536,6 +537,9 @@ message ConvolutionParameter {
   optional uint32 stride = 6 [default = 1]; // The stride (equal in Y, X)
   optional uint32 stride_h = 13; // The stride height
   optional uint32 stride_w = 14; // The stride width
+  optional uint32 filter_stride = 16 [default = 1]; // (equal in Y, X)
+  optional uint32 filter_stride_h = 17; // The filter stride height
+  optional uint32 filter_stride_w = 18; // The filter stride width
   optional FillerParameter weight_filler = 7; // The filler for the weight
   optional FillerParameter bias_filler = 8; // The filler for the bias
   enum Engine {
@@ -558,6 +562,8 @@ message Convolution3DParameter {
   optional uint32 group = 5 [default = 1]; // The group size for group conv
   optional uint32 stride = 6 [default = 1]; // The stride (equal in Y, X)
   optional uint32 stride_l = 11 [default = 1]; // The stride length
+  optional uint32 filter_stride = 13 [default = 1];
+  optional uint32 filter_stride_l = 14 [default = 1];
   optional FillerParameter weight_filler = 7; // The filler for the weight
   optional FillerParameter bias_filler = 8; // The filler for the bias
   enum Engine {

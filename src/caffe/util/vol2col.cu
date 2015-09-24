@@ -28,7 +28,9 @@ namespace caffe {
 template <typename Dtype>
 __global__ void vol2col_gpu_kernel(const int n, const Dtype* data_im,
     const int length, const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, const int length_col, const int height_col, const int width_col,
+    const int temporal_pad, const int stride, const int temporal_stride, 
+	const int filter_stride, const int filter_stride_l,
+	const int length_col, const int height_col, const int width_col,
     Dtype* data_col) {
   CUDA_KERNEL_LOOP(index, n) {
     int w_out = index % width_col;
@@ -45,11 +47,11 @@ __global__ void vol2col_gpu_kernel(const int n, const Dtype* data_im,
     for (int k = 0; k < kdepth; ++k) {
       for (int i = 0; i < ksize; ++i) {
         for (int j = 0; j < ksize; ++j) {
-          int l = l_in + k;
-          int h = h_in + i;
-          int w = w_in + j;
+          int l = l_in + k * filter_stride_l;
+          int h = h_in + i * filter_stride;
+          int w = w_in + j * filter_stride;
           *data_col = (l >= 0 && h >= 0 && w >= 0 && h < height && w < width && l < length) ?
-              data_im[(k * height + i) * width + j] : 0;
+              data_im[(k * filter_stride_l * height + i * filter_stride) * width + j * filter_stride] : 0;
           data_col += length_col * height_col * width_col;
         }
       }
@@ -60,17 +62,21 @@ __global__ void vol2col_gpu_kernel(const int n, const Dtype* data_im,
 template <typename Dtype>
 void vol2col_gpu(const Dtype* data_im, const int channels, const int length,
     const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, Dtype* data_col) {
+	const int temporal_pad, const int stride, const int temporal_stride, 
+	const int filter_stride, const int filter_stride_l, Dtype* data_col) {
   // We are going to launch channels * height_col * width_col kernels, each
   // kernel responsible for copying a single-channel grid.
-  int length_col = (length + 2 * temporal_pad - kdepth) / temporal_stride + 1;
-  int height_col = (height + 2 * pad - ksize) / stride + 1;
-  int width_col = (width + 2 * pad - ksize) / stride + 1;
+	int kernel_eff = ksize + (ksize - 1) * (filter_stride - 1);
+	int kernel_eff_l = kdepth + (kdepth - 1) * (filter_stride_l - 1);
+	int length_col = (length + 2 * temporal_pad - kernel_eff_l) / temporal_stride + 1;
+	int height_col = (height + 2 * pad - kernel_eff) / stride + 1;
+	int width_col = (width + 2 * pad - kernel_eff) / stride + 1;
   int num_kernels = channels * length_col * height_col * width_col;
   // NOLINT_NEXT_LINE(whitespace/operators)
   vol2col_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
                              CAFFE_CUDA_NUM_THREADS>>>(
       num_kernels, data_im, length, height, width, ksize, kdepth, pad, temporal_pad, stride, temporal_stride, 
+	  filter_stride, filter_stride_l,
       length_col, height_col, width_col, data_col);
   CUDA_POST_KERNEL_CHECK;
 }
@@ -79,15 +85,19 @@ void vol2col_gpu(const Dtype* data_im, const int channels, const int length,
 // Explicit instantiation
 template void vol2col_gpu<float>(const float* data_im, const int channels, const int length,
     const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, float* data_col);
+    const int temporal_pad, const int stride, const int temporal_stride, 
+	const int filter_stride, const int filter_stride_l_, float* data_col);
 template void vol2col_gpu<double>(const double* data_im, const int channels, const int length,
     const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, double* data_col);
+    const int temporal_pad, const int stride, const int temporal_stride,
+	const int filter_stride, const int filter_stride_l_, double* data_col);
 
 template <typename Dtype>
 __global__ void col2vol_gpu_kernel(const int n, const Dtype* data_col,
     const int length, const int height, const int width, const int channels, const int ksize, const int kdepth,
-    const int pad, const int temporal_pad, const int stride, const int temporal_stride, const int length_col, const int height_col, const int width_col,
+    const int pad, const int temporal_pad, const int stride, const int temporal_stride, 
+	const int filter_stride, const int filter_stride_l,
+	const int length_col, const int height_col, const int width_col,
     Dtype* data_im) {
   CUDA_KERNEL_LOOP(index, n) {
     Dtype val = 0;
@@ -96,26 +106,36 @@ __global__ void col2vol_gpu_kernel(const int n, const Dtype* data_col,
     int l = (index / width / height) % length + temporal_pad;
     int c = index / (width * height * length);
     // compute the start and end of the output
-    int w_col_start = (w < ksize) ? 0 : (w - ksize) / stride + 1;
+	int kernel_eff = ksize + (ksize - 1) * (filter_stride - 1);
+	int kernel_eff_l = kdepth + (kdepth - 1) * (filter_stride_l - 1);
+
+	int w_col_start = (w < kernel_eff) ? 0 : (w - kernel_eff) / stride + 1;
     int w_col_end = min(w / stride + 1, width_col);
-    int h_col_start = (h < ksize) ? 0 : (h - ksize) / stride + 1;
+	int h_col_start = (h < kernel_eff) ? 0 : (h - kernel_eff) / stride + 1;
     int h_col_end = min(h / stride + 1, height_col);
-    int l_col_start = (l < kdepth) ? 0 : (l - kdepth) / temporal_stride + 1;
+	int l_col_start = (l < kernel_eff_l) ? 0 : (l - kernel_eff_l) / temporal_stride + 1;
     int l_col_end = min(l / temporal_stride + 1, length_col);
         
-    int offset = (c * kdepth * ksize * ksize + l * ksize * ksize + h * ksize + w) * length_col * height_col * width_col;
-    
-    int coeff_l_col = (1 - temporal_stride * ksize * ksize * length_col) * height_col * width_col;
-    int coeff_h_col = (1 - stride * ksize * length_col * height_col) * width_col;
-    int coeff_w_col = (1 - stride * length_col * height_col * width_col);
-    
-    for (int l_col = l_col_start; l_col < l_col_end; ++l_col) {
-      for (int h_col = h_col_start; h_col < h_col_end; ++h_col) {
-        for (int w_col = w_col_start; w_col < w_col_end; ++w_col) {
-          val += data_col[offset + l_col * coeff_l_col + h_col * coeff_h_col + w_col * coeff_w_col];
-        }
-      }
-    }
+	for (int l_col = l_col_start; l_col < l_col_end; ++l_col) {
+		if ((l - l_col * temporal_stride) % filter_stride_l == 0)
+		{
+			for (int h_col = h_col_start; h_col < h_col_end; ++h_col) {
+				if ((h - h_col * stride) % filter_stride == 0)
+				{
+					for (int w_col = w_col_start; w_col < w_col_end; ++w_col) {
+						if ((w - w_col * stride) % filter_stride == 0)
+						{
+							int c_col = c * kdepth * ksize * ksize
+								+ (l - l_col * temporal_stride) / filter_stride_l * ksize * ksize
+								+ (h - h_col * stride) / filter_stride * ksize
+								+ (w - w_col * stride) / filter_stride;
+							val += data_col[((c_col * length_col + l_col) * height_col + h_col) * width_col + w_col];
+						}
+					}
+				}
+			}
+		}
+	}
     data_im[index] = val;
   }
 }
@@ -123,12 +143,15 @@ __global__ void col2vol_gpu_kernel(const int n, const Dtype* data_col,
 template <typename Dtype>
 void col2vol_gpu(const Dtype* data_col, const int channels, const int length,
     const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, Dtype* data_im) {
+    const int temporal_pad, const int stride, const int temporal_stride,
+	const int filter_stride, const int filter_stride_l, Dtype* data_im) {
   // CUDA_CHECK(cudaMemset(data_im, 0,
   //            sizeof(Dtype) * length * height * width * channels));
-  int length_col = (length + 2 * temporal_pad - kdepth) / temporal_stride + 1;
-  int height_col = (height + 2 * pad - ksize) / stride + 1;
-  int width_col = (width + 2 * pad - ksize) / stride + 1;
+	int kernel_eff = ksize + (ksize - 1) * (filter_stride - 1);
+	int kernel_eff_l = kdepth + (kdepth - 1) * (filter_stride_l - 1);
+	int length_col = (length + 2 * temporal_pad - kernel_eff_l) / temporal_stride + 1;
+	int height_col = (height + 2 * pad - kernel_eff) / stride + 1;
+	int width_col = (width + 2 * pad - kernel_eff) / stride + 1;
   int num_kernels = channels * length * height * width;
   // To avoid involving atomic operations, we will launch one kernel per
   // bottom dimension, and then in the kernel add up the top dimensions.
@@ -136,6 +159,7 @@ void col2vol_gpu(const Dtype* data_col, const int channels, const int length,
   col2vol_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
                              CAFFE_CUDA_NUM_THREADS>>>(
       num_kernels, data_col, length, height, width, channels, ksize, kdepth, pad, temporal_pad, stride, temporal_stride,
+	  filter_stride, filter_stride_l,
       length_col, height_col, width_col, data_im);
   CUDA_POST_KERNEL_CHECK;
 }
@@ -144,9 +168,11 @@ void col2vol_gpu(const Dtype* data_col, const int channels, const int length,
 // Explicit instantiation
 template void col2vol_gpu<float>(const float* data_col, const int channels, const int length,
     const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, float* data_im);
+    const int temporal_pad, const int stride, const int temporal_stride, 
+	const int filter_stride, const int filter_stride_l_, float* data_im);
 template void col2vol_gpu<double>(const double* data_col, const int channels, const int length,
     const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, double* data_im);
+    const int temporal_pad, const int stride, const int temporal_stride,
+	const int filter_stride, const int filter_stride_l_, double* data_im);
 
 }  // namespace caffe

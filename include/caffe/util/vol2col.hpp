@@ -24,22 +24,26 @@ namespace caffe {
 template <typename Dtype>
 void vol2col_cpu(const Dtype* data_im, const int channels, const int length,
     const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, Dtype* data_col);
+    const int temporal_pad, const int stride, const int temporal_stride,
+	const int filter_stride, const int filter_stride_l, Dtype* data_col);
 
 template <typename Dtype>
 void col2vol_cpu(const Dtype* data_col, const int channels, const int length,
     const int height, const int width, const int ksize, const int kdepth, const int pad,
-    const int temporal_pad, const int stride, const int temporal_stride, Dtype* data_im);
+	const int temporal_pad, const int stride, const int temporal_stride,
+	const int filter_stride, const int filter_stride_l, Dtype* data_im);
 
 template <typename Dtype>
 void vol2col_gpu(const Dtype* data_im, const int channels, const int length,
 	    const int height, const int width, const int ksize, const int kdepth, const int pad,
-	    const int temporal_pad, const int stride, const int temporal_stride, Dtype* data_col);
+		const int temporal_pad, const int stride, const int temporal_stride, 
+		const int filter_stride, const int filter_stride_l, Dtype* data_col);
 
 template <typename Dtype>
 void col2vol_gpu(const Dtype* data_col, const int channels, const int length,
 	    const int height, const int width, const int ksize, const int kdepth, const int pad,
-	    const int temporal_pad, const int stride, const int temporal_stride, Dtype* data_im);
+	    const int temporal_pad, const int stride, const int temporal_stride,
+		const int filter_stride, const int filter_stride_l, Dtype* data_im);
 
 }  // namespace caffe
 

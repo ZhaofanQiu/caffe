@@ -360,16 +360,16 @@ namespace caffe{
 
 int main(int argc, char** argv){
 	FLAGS_logtostderr = 1;
-	//caffe::Caffe::set_mode(caffe::Caffe::CPU);
-	/*
-	caffe::Caffe::set_mode(caffe::Caffe::GPU);
-	caffe::Caffe::SetDevice(1);
+	caffe::Caffe::set_mode(caffe::Caffe::CPU);
+	//caffe::Caffe::set_mode(caffe::Caffe::GPU);
+	//caffe::Caffe::SetDevice(1);
 	caffe::Convolution3DLayerTest<float> test1;
 	test1.StartTest();
 	LOG(INFO) << "End test Convolution3DLayer";
 	caffe::Deconvolution3DLayerTest<float> test2;
 	test2.StartTest();
 	LOG(INFO) << "End test Deconvolution3DLayer";
+	/*
 	caffe::Pooling3DLayerTest<float> test3;
 	test3.StartTest();
 	LOG(INFO) << "End test Pooling3DLayer";
@@ -382,9 +382,9 @@ int main(int argc, char** argv){
 	caffe::LSTMUnitLayerTest<float> test6;
 	test6.StartTest();
 	LOG(INFO) << "End test LSTMUnitLayer";
-	*/
 	caffe::GridLSTMLayerTest<float> test7;
 	test7.StartTest();
 	LOG(INFO) << "End test GridLSTMLayer";
+	*/
 	return 0;
 }

@@ -19,11 +19,11 @@ namespace caffe {
 
 template <typename Dtype>
 void Deconvolution3DLayer<Dtype>::compute_output_shape() {
-	this->length_out_ = this->stride_l_ * (this->length_ - 1) + this->kernel_l_
+	this->length_out_ = this->stride_l_ * (this->length_ - 1) + this->kernel_eff_l_
 		- 2 * this->pad_l_;
-  this->height_out_ = this->stride_ * (this->height_ - 1) + this->kernel_size_
+  this->height_out_ = this->stride_ * (this->height_ - 1) + this->kernel_eff_
       - 2 * this->pad_;
-  this->width_out_ = this->stride_ * (this->width_ - 1) + this->kernel_size_
+  this->width_out_ = this->stride_ * (this->width_ - 1) + this->kernel_eff_
       - 2 * this->pad_;
 }
 

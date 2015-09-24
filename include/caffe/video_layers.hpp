@@ -44,7 +44,8 @@ namespace caffe {
 
 		virtual inline const char* type() const { return "VideoData"; }
 		virtual inline int ExactNumBottomBlobs() const { return 0; }
-		virtual inline int ExactNumTopBlobs() const { return 2; }
+		virtual inline int MinNumTopBlobs() const { return 1; }
+		virtual inline int MaxNumTopBlobs() const { return 2; }
 
 	protected:
 		shared_ptr<Caffe::RNG> prefetch_rng_;
@@ -114,6 +115,8 @@ namespace caffe {
 
 		int kernel_l_, kernel_size_;
 		int stride_l_, stride_;
+		int filter_stride_, filter_stride_l_;
+		int kernel_eff_, kernel_eff_l_;
 		int num_;
 		int channels_;
 		int pad_l_, pad_;
@@ -128,20 +131,20 @@ namespace caffe {
 		// wrap im2col/col2im so we don't have to remember the (long) argument lists
 		inline void conv_vol2col_cpu(const Dtype* data, Dtype* col_buff) {
 			vol2col_cpu(data, conv_in_channels_, conv_in_length_, conv_in_height_, conv_in_width_,
-				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, col_buff);
+				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, filter_stride_, filter_stride_l_, col_buff);
 		}
 		inline void conv_col2vol_cpu(const Dtype* col_buff, Dtype* data) {
 			col2vol_cpu(col_buff, conv_in_channels_, conv_in_length_, conv_in_height_, conv_in_width_,
-				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, data);
+				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, filter_stride_, filter_stride_l_, data);
 		}
 #ifndef CPU_ONLY
 		inline void conv_vol2col_gpu(const Dtype* data, Dtype* col_buff) {
 			vol2col_gpu(data, conv_in_channels_, conv_in_length_, conv_in_height_, conv_in_width_,
-				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, col_buff);
+				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, filter_stride_, filter_stride_l_, col_buff);
 		}
 		inline void conv_col2vol_gpu(const Dtype* col_buff, Dtype* data) {
 			col2vol_gpu(col_buff, conv_in_channels_, conv_in_length_, conv_in_height_, conv_in_width_,
-				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, data);
+				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, filter_stride_, filter_stride_l_, data);
 		}
 #endif
 
@@ -156,7 +159,7 @@ namespace caffe {
 		int col_offset_;
 		int output_offset_;
 
-		Blob<Dtype> col_buffer_;
+		static Blob<Dtype> col_buffer_;
 		Blob<Dtype> bias_multiplier_;
 	};
 
@@ -300,7 +303,7 @@ namespace caffe {
 			const vector<Blob<Dtype>*>& top);
 		// DataLayer uses DataReader instead for sharing for parallelism
 		virtual inline bool ShareInParallel() const { return false; }
-		virtual inline const char* type() const { return "DBData"; }
+		virtual inline const char* type() const { return "VolumeData"; }
 		virtual inline int ExactNumBottomBlobs() const { return 0; }
 		virtual inline int MinTopBlobs() const { return 1; }
 		virtual inline int MaxTopBlobs() const { return 2; }

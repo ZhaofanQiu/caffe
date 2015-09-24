@@ -253,7 +253,6 @@ namespace caffe {
 		int size = channels * length * height * width;
 
 		Dtype* prefetch_data = batch->data_.mutable_cpu_data();
-		Dtype* prefetch_label = batch->label_.mutable_cpu_data();
 
 		VolumeDatum datum;
 		const int chunks_size = this->shuffle_index_.size();
@@ -426,6 +425,7 @@ namespace caffe {
 				}
 			}
 			if (this->output_labels_) {
+				Dtype* prefetch_label = batch->label_.mutable_cpu_data();
 				prefetch_label[item_id] = datum.label();
 				 //LOG(INFO) << "fetching label" << datum.label() << std::endl;
 			}
