@@ -23,7 +23,7 @@ namespace caffe {
 		const vector<Blob<Dtype>*>& top) {
 		CHECK_EQ(5, bottom[0]->num_axes());
 		frame_id_ = this->layer_param().extract_frame_param().frame();
-		CHECK_GE(0, frame_id_);
+		CHECK_GE(frame_id_, 0);
 		CHECK_LT(frame_id_, bottom[0]->shape(2));
 	}
 

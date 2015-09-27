@@ -22,7 +22,7 @@ namespace caffe {
 		int length = bottom[0]->shape(2);
 		int outer = bottom[0]->count(0, 2);
 		int inner = bottom[0]->count(3);
-		caffe_set(top[0]->count(), static_cast<Dtype>(0), top_data);
+		caffe_gpu_set(top[0]->count(), static_cast<Dtype>(0), top_data);
 		for (int o = 0; o < outer; o++)
 		{
 			caffe_copy(inner, bottom_data + frame_id_ * inner, top_data);
@@ -39,9 +39,9 @@ namespace caffe {
 
 		int length = bottom[0]->shape(2);
 		int outer = bottom[0]->count(0, 2);
-		int inner = bottom[0]->count(3);;
+		int inner = bottom[0]->count(3);
 		if (propagate_down[0]) {
-			caffe_set(bottom[0]->count(), static_cast<Dtype>(0), bottom_diff);
+			caffe_gpu_set(bottom[0]->count(), static_cast<Dtype>(0), bottom_diff);
 			for (int o = 0; o < outer; o++)
 			{
 				caffe_copy(inner, top_diff, bottom_diff + frame_id_ * inner);

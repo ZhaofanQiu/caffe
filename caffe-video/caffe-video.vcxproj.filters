@@ -333,6 +333,9 @@
     <ClCompile Include="..\src\caffe\layers\extract_frame_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\random_fusion_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
     <ClCompile Include="..\tools\caffe-light.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
@@ -498,6 +501,9 @@
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\extract_frame_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\random_fusion_layer.cu">
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
   </ItemGroup>

@@ -708,6 +708,36 @@ namespace caffe {
 
 		int frame_id_;
 	};	
+
+	template <typename Dtype>
+	class RandomFusionLayer : public Layer<Dtype> {
+	public:
+		explicit RandomFusionLayer(const LayerParameter& param)
+			: Layer<Dtype>(param) {}
+		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "RandomFusion"; }
+		virtual inline int MinBottomBlobs() const { return 1; }
+		virtual inline int ExactNumTopBlobs() const { return 1; }
+
+	protected:
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+		vector<Dtype> random_vec_;
+		vector<unsigned int> random_idx_;
+		float std_;
+		float prob_;
+	};
 }  // namespace caffe
 
 #endif  // CAFFE_VIDEO_LAYERS_HPP_

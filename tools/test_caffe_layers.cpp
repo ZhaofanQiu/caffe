@@ -400,6 +400,50 @@ namespace caffe{
 			EXPECT_EQ(this->blob_top_->shape(3), 10);
 		}
 	};
+
+	template <typename Dtype>
+	class RandomFusionLayerTest {
+	public:
+		RandomFusionLayerTest() :blob_bottom1_(new Blob<Dtype>()), blob_bottom2_(new Blob<Dtype>()),
+			blob_top_(new Blob<Dtype>()){
+			this->SetUp();
+		}
+		~RandomFusionLayerTest(){ delete blob_bottom1_; delete blob_bottom2_; delete blob_top_; }
+
+	protected:
+		void SetUp(){
+			blob_bottom1_->Reshape(video_shape(2, 2, 3, 3, 10));
+			blob_bottom2_->Reshape(video_shape(2, 2, 3, 3, 10));
+			//fill the values
+			FillerParameter filler_param;
+			filler_param.set_value(1.);
+			GaussianFiller<Dtype> filler(filler_param);
+			filler.Fill(this->blob_bottom1_);
+			filler.Fill(this->blob_bottom2_);
+			blob_bottom_vec_.push_back(blob_bottom1_);
+			blob_bottom_vec_.push_back(blob_bottom2_);
+			blob_top_vec_.push_back(blob_top_);
+		}
+		Blob<Dtype>* const blob_bottom1_;
+		Blob<Dtype>* const blob_bottom2_;
+		Blob<Dtype>* const blob_top_;
+		vector<Blob<Dtype>*> blob_bottom_vec_;
+		vector<Blob<Dtype>*> blob_top_vec_;
+
+	public:
+		void StartTest(){
+			LayerParameter layer_param;
+
+			shared_ptr<Layer<Dtype>> layer(new CropLayer<Dtype>(layer_param));
+			GradientChecker<Dtype> checker(1e-3, 1e-3);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			EXPECT_EQ(this->blob_top_->shape(0), 2);
+			EXPECT_EQ(this->blob_top_->shape(1), 2);
+			EXPECT_EQ(this->blob_top_->shape(2), 3);
+			EXPECT_EQ(this->blob_top_->shape(3), 6);
+			EXPECT_EQ(this->blob_top_->shape(4), 7);
+		}
+	};
 }
 
 int main(int argc, char** argv){
@@ -429,9 +473,9 @@ int main(int argc, char** argv){
 	caffe::GridLSTMLayerTest<float> test7;
 	test7.StartTest();
 	LOG(INFO) << "End test GridLSTMLayer";
-	*/
 	caffe::ExtractFrameLayerTest<float> test8;
 	test8.StartTest();
 	LOG(INFO) << "End test ExtractFrameLayer";
+	*/
 	return 0;
 }
