@@ -80,7 +80,7 @@ void col2vol_cpu(const Dtype* data_col, const int channels, const int length,
 	int length_col = (length + 2 * temporal_pad - kernel_l_eff) / temporal_stride + 1;
 	int height_col = (height + 2 * pad - kernel_eff) / stride + 1;
 	int width_col = (width + 2 * pad - kernel_eff) / stride + 1;
-  int channels_col = channels * ksize * ksize;
+  int channels_col = channels * kdepth * ksize * ksize;
   for (int c = 0; c < channels_col; ++c) {
     int w_offset = (c % ksize) * filter_stride;
     int h_offset = ((c / ksize) % ksize) * filter_stride;

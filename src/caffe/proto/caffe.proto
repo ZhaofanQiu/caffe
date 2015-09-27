@@ -246,6 +246,7 @@ message SolverParameter {
 
   // If false, don't save a snapshot after training finishes.
   optional bool snapshot_after_train = 28 [default = true];
+  optional string eval_type = 40 [default = "classification"];
 }
 
 // A message that stores the solver snapshots
@@ -404,6 +405,22 @@ message LayerParameter {
   optional GridLSTMParameter grid_lstm_param = 143;
   optional NormalizeParameter norm_param = 144;
   optional UnPoolingParameter unpooling_param = 145;
+  optional ParseEvaluateParameter parse_evaluate_param = 146;
+  optional ExtractFrameParameter extract_frame_param = 147;
+}
+
+// Message that stores parameters used by ExtractFrameLayer
+message ExtractFrameParameter {
+  // frame index
+  optional int32 frame = 1 [default = 0];
+}
+
+// Message that stores parameters used by ParseEvaluateLayer
+message ParseEvaluateParameter {
+  // Number of total labels. Must provide.
+  optional int32 num_labels = 1;
+  // Ignore evaluating following labels.
+  repeated int32 ignore_label = 2;
 }
 
 // Message that stores parameters used by UnPoolingLayer

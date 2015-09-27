@@ -51,9 +51,12 @@ namespace caffe{
 		void StartTest(){
 			LayerParameter layer_param;
 			Convolution3DParameter* convolution_param = layer_param.mutable_convolution3d_param();
-			convolution_param->set_kernel_size(4);
-			convolution_param->set_kernel_l(1);
+			convolution_param->set_kernel_size(3);
+			convolution_param->set_kernel_l(2);
 			convolution_param->set_stride(2);
+			convolution_param->set_filter_stride(2);
+			convolution_param->set_filter_stride_l(2);
+			convolution_param->set_pad(2);
 			convolution_param->set_num_output(2);
 			convolution_param->mutable_weight_filler()->set_type("gaussian");
 			convolution_param->mutable_weight_filler()->set_std(0.01);
@@ -66,9 +69,9 @@ namespace caffe{
 
 			EXPECT_EQ(this->blob_top_->shape(0), 2);
 			EXPECT_EQ(this->blob_top_->shape(1), 2);
-			EXPECT_EQ(this->blob_top_->shape(2), 3);
-			EXPECT_EQ(this->blob_top_->shape(3), 4);
-			EXPECT_EQ(this->blob_top_->shape(4), 4);
+			EXPECT_EQ(this->blob_top_->shape(2), 1);
+			EXPECT_EQ(this->blob_top_->shape(3), 5);
+			EXPECT_EQ(this->blob_top_->shape(4), 5);
 		}
 	};
 
@@ -356,6 +359,47 @@ namespace caffe{
 			EXPECT_EQ(this->blob_top_->shape(4), 3);
 		}
 	};
+
+	template <typename Dtype>
+	class ExtractFrameLayerTest {
+	public:
+		ExtractFrameLayerTest() :blob_bottom_(new Blob<Dtype>()),
+			blob_top_(new Blob<Dtype>()){
+			this->SetUp();
+		}
+		~ExtractFrameLayerTest(){ delete blob_bottom_; delete blob_top_; }
+
+	protected:
+		void SetUp(){
+			blob_bottom_->Reshape(video_shape(3, 2, 4, 10, 10));
+			//fill the values
+			FillerParameter filler_param;
+			filler_param.set_value(1.);
+			GaussianFiller<Dtype> filler(filler_param);
+			filler.Fill(this->blob_bottom_);
+			blob_bottom_vec_.push_back(blob_bottom_);
+			blob_top_vec_.push_back(blob_top_);
+		}
+		Blob<Dtype>* const blob_bottom_;
+		Blob<Dtype>* const blob_top_;
+		vector<Blob<Dtype>*> blob_bottom_vec_;
+		vector<Blob<Dtype>*> blob_top_vec_;
+
+	public:
+		void StartTest(){
+			LayerParameter layer_param;
+			ExtractFrameParameter* extract_frame_param = layer_param.mutable_extract_frame_param();
+			extract_frame_param->set_frame(2);
+
+			shared_ptr<Layer<Dtype>> layer(new ExtractFrameLayer<Dtype>(layer_param));
+			GradientChecker<Dtype> checker(1e-3, 1e-3);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			EXPECT_EQ(this->blob_top_->shape(0), 3);
+			EXPECT_EQ(this->blob_top_->shape(1), 2);
+			EXPECT_EQ(this->blob_top_->shape(2), 10);
+			EXPECT_EQ(this->blob_top_->shape(3), 10);
+		}
+	};
 }
 
 int main(int argc, char** argv){
@@ -363,13 +407,13 @@ int main(int argc, char** argv){
 	caffe::Caffe::set_mode(caffe::Caffe::CPU);
 	//caffe::Caffe::set_mode(caffe::Caffe::GPU);
 	//caffe::Caffe::SetDevice(1);
+	/*
 	caffe::Convolution3DLayerTest<float> test1;
 	test1.StartTest();
 	LOG(INFO) << "End test Convolution3DLayer";
 	caffe::Deconvolution3DLayerTest<float> test2;
 	test2.StartTest();
 	LOG(INFO) << "End test Deconvolution3DLayer";
-	/*
 	caffe::Pooling3DLayerTest<float> test3;
 	test3.StartTest();
 	LOG(INFO) << "End test Pooling3DLayer";
@@ -386,5 +430,8 @@ int main(int argc, char** argv){
 	test7.StartTest();
 	LOG(INFO) << "End test GridLSTMLayer";
 	*/
+	caffe::ExtractFrameLayerTest<float> test8;
+	test8.StartTest();
+	LOG(INFO) << "End test ExtractFrameLayer";
 	return 0;
 }
