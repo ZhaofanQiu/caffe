@@ -492,6 +492,7 @@ namespace caffe {
 		shared_ptr<SplitLayer<Dtype> > split_h_;
 		shared_ptr<SplitLayer<Dtype> > split_x_;
 		shared_ptr<SplitLayer<Dtype> > split_xh_h_;
+		shared_ptr<DropoutLayer<Dtype> > dropout_;
 	};
 
 	/**
@@ -736,6 +737,7 @@ namespace caffe {
 		vector<Dtype> random_vec_;
 		vector<unsigned int> random_idx_;
 		float std_;
+		float mean_;
 		float prob_;
 	};
 }  // namespace caffe

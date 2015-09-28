@@ -269,6 +269,10 @@ namespace caffe {
 		split_xh_h_.reset(new SplitLayer<Dtype>(param8));
 		split_xh_h_->SetUp(split3_bottom_vec, split3_top_vec);
 
+		LayerParameter param9;
+		param9.mutable_dropout_param()->CopyFrom(this->layer_param().dropout_param());
+		dropout_.reset(new DropoutLayer<Dtype>(param9));
+		dropout_->SetUp(concat2_top_vec, concat2_top_vec);
 	}
 
 	template <typename Dtype>
@@ -406,6 +410,7 @@ namespace caffe {
 			}
 			vector<Blob<Dtype>*> concat_top_vec(1, XH_x_[dp].get());
 			concat_x_->Forward(concat_bottom_vec, concat_top_vec);
+			dropout_->Forward(concat_top_vec, concat_top_vec);
 			//6. forward gate.
 			vector<Blob<Dtype>*> ip_bottom_vec(1, XH_x_[dp].get());
 			vector<Blob<Dtype>*> ip_top_vec(1, G_x_[dp].get());
@@ -498,6 +503,8 @@ namespace caffe {
 				concat_prop[1 + i] = true;
 			}
 			vector<Blob<Dtype>*> concat_top_vec(1, XH_x_[dp].get());
+			vector<bool> dropout_prop(1, true);
+			dropout_->Backward(concat_top_vec, dropout_prop, concat_top_vec);
 			concat_x_->Backward(concat_top_vec, concat_prop, concat_bottom_vec);
 		}
 

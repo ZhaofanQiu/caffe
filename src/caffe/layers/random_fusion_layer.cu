@@ -22,8 +22,12 @@ void RandomFusionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 		switch (this->layer_param().random_fusion_param().random())
 		{
 		case caffe::RandomFusionParameter_RandomMethod_Gaussion:
-			caffe::caffe_rng_gaussian(bottom.size(), (Dtype)0., (Dtype)std_, &random_vec_[0]);
-			break;
+		  caffe::caffe_rng_gaussian(bottom.size(), (Dtype)mean_, (Dtype)std_, &random_vec_[0]);
+		  for (int i = 0; i < bottom.size(); i++)
+		  {
+			  random_vec_[i] = std::max(random_vec_[i], (Dtype)0.);
+		  }
+		  break;
 		case caffe::RandomFusionParameter_RandomMethod_Bernoulli:
 			caffe::caffe_rng_bernoulli(bottom.size(), (Dtype)prob_, &random_idx_[0]);
 			for (int i = 0; i < bottom.size(); i++)

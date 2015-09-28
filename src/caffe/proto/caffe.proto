@@ -419,6 +419,7 @@ message RandomFusionParameter {
   optional RandomMethod random = 1 [default = Gaussion];
   optional float std = 2 [default = 1];
   optional float prob = 3 [default = 0.2];
+  optional float mean = 4 [default = 0];
 }
 
 // Message that stores parameters used by ExtractFrameLayer

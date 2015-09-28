@@ -22,6 +22,10 @@ void RandomFusionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 	{
 		prob_ = this->layer_param().random_fusion_param().prob();
 	}
+	if (this->layer_param().random_fusion_param().has_mean())
+	{
+		mean_ = this->layer_param().random_fusion_param().mean();
+	}
 	CHECK(prob_ > 0.);
 	CHECK(prob_ < 1.);
 	random_vec_ = vector<Dtype>(bottom.size(), 1);
@@ -49,7 +53,11 @@ void RandomFusionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 	  switch (this->layer_param().random_fusion_param().random())
 	  {
 	  case caffe::RandomFusionParameter_RandomMethod_Gaussion:
-		  caffe::caffe_rng_gaussian(bottom.size(), (Dtype)0., (Dtype)std_, &random_vec_[0]);
+		  caffe::caffe_rng_gaussian(bottom.size(), (Dtype)mean_, (Dtype)std_, &random_vec_[0]);
+		  for (int i = 0; i < bottom.size(); i++)
+		  {
+			  random_vec_[i] = std::max(random_vec_[i], (Dtype)0.);
+		  }
 		  break;
 	  case caffe::RandomFusionParameter_RandomMethod_Bernoulli:
 		  caffe::caffe_rng_bernoulli(bottom.size(), (Dtype)prob_, &random_idx_[0]);
