@@ -21,13 +21,13 @@ void RandomFusionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 	if (this->layer_param().random_fusion_param().has_prob())
 	{
 		prob_ = this->layer_param().random_fusion_param().prob();
+		CHECK(prob_ > 0.);
+		CHECK(prob_ < 1.);
 	}
 	if (this->layer_param().random_fusion_param().has_mean())
 	{
 		mean_ = this->layer_param().random_fusion_param().mean();
 	}
-	CHECK(prob_ > 0.);
-	CHECK(prob_ < 1.);
 	random_vec_ = vector<Dtype>(bottom.size(), 1);
 	random_idx_ = vector<unsigned int>(bottom.size(), 1);
 }

@@ -13,7 +13,6 @@
 
 #include "caffe/layer.hpp"
 #include "caffe/video_layers.hpp"
-
 namespace caffe {
 
 	template <typename Dtype>

@@ -336,7 +336,7 @@
     <ClCompile Include="..\src\caffe\layers\random_fusion_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\caffe-light.cpp">
+    <ClCompile Include="..\tools\test_lstm_speed.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>

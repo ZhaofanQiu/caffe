@@ -50,13 +50,18 @@ void convert_to_3d_conv_blob(BlobProto* proto)
 		proto->clear_data();
 		for (int i = 0; i < count / (3 * 3); i++)
 		{
-			for (int j = 0; j < 3; j++)
-			{
 				for (int k = 0; k < 3 * 3; k++)
 				{
-					proto->add_data(buffer[i * 3 * 3 + k] / 3);
+					proto->add_data(0);
 				}
-			}
+				for (int k = 0; k < 3 * 3; k++)
+				{
+					proto->add_data(buffer[i * 3 * 3 + k]);
+				}
+				for (int k = 0; k < 3 * 3; k++)
+				{
+					proto->add_data(0);
+				}
 		}
 		delete buffer;
 	}
