@@ -20,10 +20,12 @@ namespace caffe {
 		return 1. / (1. + exp(-x));
 	}
 
+	/*
 	template <typename Dtype>
 	inline Dtype tanh(Dtype x) {
 		return 2. * sigmoid(2. * x) - 1.;
 	}
+	*/
 
 	template <typename Dtype>
 	void LSTMUnitLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,

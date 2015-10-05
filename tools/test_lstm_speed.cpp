@@ -49,7 +49,6 @@ namespace caffe{
 		void StartTest(int iters){
 			LayerParameter layer_param;
 			InnerProductParameter* ip_param = layer_param.mutable_inner_product_param();
-			DropoutParameter* dp_param = layer_param.mutable_dropout_param();
 			GridLSTMParameter* grid_param = layer_param.mutable_grid_lstm_param();
 			ip_param->set_num_output(4);
 			FillerParameter* fp1 = ip_param->mutable_weight_filler();
@@ -57,13 +56,10 @@ namespace caffe{
 			fp1->set_std(0.01);
 			FillerParameter* fp2 = ip_param->mutable_bias_filler();
 			fp2->set_type("constant");
-			fp2->set_value(0);
-			dp_param->set_dropout_ratio(0.5);
-			grid_param->set_num_output(4);
+			fp2->set_value(0.5);
 			grid_param->add_reverse(true);
 			grid_param->add_reverse(true);
 			grid_param->add_reverse(true);
-
 
 			shared_ptr<Layer<Dtype>> layer(new GridLSTMLayer<Dtype>(layer_param));
 			layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -73,7 +69,7 @@ namespace caffe{
 				layer->Backward(this->blob_top_vec_, vector<bool>(1, true), this->blob_bottom_vec_);
 			}
 			EXPECT_EQ(this->blob_top_->shape(0), 8);
-			EXPECT_EQ(this->blob_top_->shape(1), 4);
+			EXPECT_EQ(this->blob_top_->shape(1), 28);
 			EXPECT_EQ(this->blob_top_->shape(2), 8);
 			EXPECT_EQ(this->blob_top_->shape(3), 16);
 			EXPECT_EQ(this->blob_top_->shape(4), 32);

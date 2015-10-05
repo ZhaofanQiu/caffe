@@ -49,15 +49,6 @@ namespace caffe {
 				(ip_xh_h_[i]->blobs()[0])->ShareData(*(blobs_[i]));
 			}
 		}
-		if (bias_term_)
-		{
-			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_ * 2]));
-			(ip_xh_x_->blobs()[1])->ShareData(*(blobs_[grid_dim_ * 2 + 1]));
-		}
-		else
-		{
-			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_]));
-		}
 		// 1. copy bottom to X_.
 		const Dtype* bottom_data = bottom[0]->gpu_data();
 		for (int d = 0; d < num_seq_; d++)
@@ -138,7 +129,7 @@ namespace caffe {
 				split_h_->Forward(split1_bottom_vec, split1_top_vec);
 			}
 		}
-		// For all sequence run lstm2.
+		// Concat output.
 		for (int d = 0; d < num_seq_; d++)
 		{
 			int dp = order_[d];
@@ -149,19 +140,14 @@ namespace caffe {
 			{
 				concat_bottom_vec[1 + i] = H_i_2_[dp][i].get();
 			}
-			vector<Blob<Dtype>*> concat_top_vec(1, XH_x_[dp].get());
+			const vector<Blob<Dtype>*> concat_top_vec(1, XH_x_[dp].get());
 			concat_x_->Forward(concat_bottom_vec, concat_top_vec);
-			dropout_->Forward(concat_top_vec, concat_top_vec);
-			//6. forward gate.
-			vector<Blob<Dtype>*> ip_bottom_vec(1, XH_x_[dp].get());
-			vector<Blob<Dtype>*> ip_top_vec(1, G_x_[dp].get());
-			ip_xh_x_->Forward(ip_bottom_vec, ip_top_vec);
 		}
-		//8. copy top.
+		//6. copy top.
 		Dtype* top_data = top[0]->mutable_gpu_data();
 		for (int d = 0; d < num_seq_; d++)
 		{
-			const Dtype* X_data = G_x_[d]->gpu_data();
+			const Dtype* X_data = XH_x_[d]->gpu_data();
 			Xd2Blob<Dtype> << <CAFFE_GET_BLOCKS(num * output_dim_), CAFFE_CUDA_NUM_THREADS >> >(
 				num * output_dim_, X_data, d, num_seq_, top_data);
 		}
@@ -188,52 +174,30 @@ namespace caffe {
 				(ip_xh_h_[i]->blobs()[0])->ShareDiff(*(blobs_[i]));
 			}
 		}
-		if (bias_term_)
-		{
-			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_ * 2]));
-			(ip_xh_x_->blobs()[0])->ShareDiff(*(blobs_[grid_dim_ * 2]));
-			(ip_xh_x_->blobs()[1])->ShareData(*(blobs_[grid_dim_ * 2 + 1]));
-			(ip_xh_x_->blobs()[1])->ShareDiff(*(blobs_[grid_dim_ * 2 + 1]));
-		}
-		else
-		{
-			(ip_xh_x_->blobs()[0])->ShareData(*(blobs_[grid_dim_]));
-			(ip_xh_x_->blobs()[0])->ShareDiff(*(blobs_[grid_dim_]));
-		}
-		//8. copy top.
+		//6. copy top.
 		const Dtype* top_diff = top[0]->gpu_diff();
 		for (int d = 0; d < num_seq_; d++)
 		{
-			Dtype* X_diff = G_x_[d]->mutable_gpu_diff();
+			Dtype* X_diff = XH_x_[d]->mutable_gpu_diff();
 			Blob2Xd<Dtype> << <CAFFE_GET_BLOCKS(num * output_dim_), CAFFE_CUDA_NUM_THREADS >> >(
 				num * output_dim_, top_diff, d, num_seq_, X_diff);
 		}
-		// For all sequence run lstm2.
+		//5. concat x & h_t
 		for (int d = 0; d < num_seq_; d++)
 		{
 			int dp = order_[num_seq_ - 1 - d];
-			//6. forward gate.
-			vector<Blob<Dtype>*> ip_bottom_vec(1, XH_x_[dp].get());
-			vector<Blob<Dtype>*> ip_top_vec(1, G_x_[dp].get());
-			vector<bool> ip_prop(1, true);
-			ip_xh_x_->Backward(ip_top_vec, ip_prop, ip_bottom_vec);
-			//5. concat x & h_t
 			vector<Blob<Dtype>*> concat_bottom_vec(1 + grid_dim_, NULL);
-			vector<bool> concat_prop(1 + grid_dim_, true);
 			concat_bottom_vec[0] = X_2_[dp].get();
-			concat_prop[0] = true;
 			for (int i = 0; i < grid_dim_; i++)
 			{
 				concat_bottom_vec[1 + i] = H_i_2_[dp][i].get();
-				concat_prop[1 + i] = true;
 			}
-			vector<Blob<Dtype>*> concat_top_vec(1, XH_x_[dp].get());
-			vector<bool> dropout_prop(1, true);
-			dropout_->Backward(concat_top_vec, dropout_prop, concat_top_vec);
-			concat_x_->Backward(concat_top_vec, concat_prop, concat_bottom_vec);
+			const vector<Blob<Dtype>*> concat_top_vec(1, XH_x_[dp].get());
+			concat_x_->Backward(concat_top_vec,
+				vector<bool>(1 + grid_dim_, true), concat_bottom_vec);
 		}
 
-		// For all sequence run lstm1.
+		// For all sequence run lstm.
 		for (int d = 0; d < num_seq_; d++)
 		{
 			int dp = order_[num_seq_ - 1 - d];

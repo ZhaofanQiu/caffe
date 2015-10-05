@@ -51,6 +51,7 @@
     <ClCompile Include="..\src\caffe\layers\parse_evaluate_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\parse_output_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\random_fusion_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\random_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\unpooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\video_switch_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\volume_data_layer.cpp" />
@@ -119,7 +120,7 @@
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\caffe\util\vol2col.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\tools\test_lstm_speed.cpp" />
+    <ClCompile Include="..\tools\caffe-light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -162,6 +163,7 @@
     <CudaCompile Include="..\src\caffe\layers\power_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\prelu_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\random_fusion_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\random_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\reduction_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\relu_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\sigmoid_cross_entropy_loss_layer.cu" />

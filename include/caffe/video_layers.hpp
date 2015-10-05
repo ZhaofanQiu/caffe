@@ -458,6 +458,7 @@ namespace caffe {
 		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
 			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
+		void CalculateOrder(const vector<Blob<Dtype>*>& bottom);
 		/// @brief The hidden and output dimension.
 		vector<bool> reverse_;
 		int output_dim_;
@@ -469,30 +470,39 @@ namespace caffe {
 		vector<int> order_;
 		//Data blobs
 		shared_ptr<Blob<Dtype> > zero_memory_;
+
+		//Layers
+		// split_x_ layer
+		shared_ptr<SplitLayer<Dtype> > split_x_;
 		vector<shared_ptr<Blob<Dtype> > > X_;
 		vector<shared_ptr<Blob<Dtype> > > X_1_;
 		vector<shared_ptr<Blob<Dtype> > > X_2_;
-		vector<shared_ptr<Blob<Dtype> > > XH_h_;
-		vector<vector<shared_ptr<Blob<Dtype> > > > XH_h_k_;
-		vector<shared_ptr<Blob<Dtype> > > XH_x_;
-		vector<shared_ptr<Blob<Dtype> > > G_x_;
 
-		vector<vector<shared_ptr<Blob<Dtype> > > > C_i_;
+		// split_h_ layer
+		shared_ptr<SplitLayer<Dtype> > split_h_;
 		vector<vector<shared_ptr<Blob<Dtype> > > > H_i_;
 		vector<vector<shared_ptr<Blob<Dtype> > > > H_i_1_;
 		vector<vector<shared_ptr<Blob<Dtype> > > > H_i_2_;
-		vector<vector<shared_ptr<Blob<Dtype> > > > G_h_;
-		//Layers
-
-		vector<shared_ptr<InnerProductLayer<Dtype> > > ip_xh_h_;
-		shared_ptr<InnerProductLayer<Dtype> > ip_xh_x_;
-		shared_ptr<ConcatLayer<Dtype> > concat_h_;
-		shared_ptr<ConcatLayer<Dtype> > concat_x_;
-		shared_ptr<LSTMUnitLayer<Dtype> > lstm_unit_h_;
-		shared_ptr<SplitLayer<Dtype> > split_h_;
-		shared_ptr<SplitLayer<Dtype> > split_x_;
+		
+		// split_xh_h_ layer
 		shared_ptr<SplitLayer<Dtype> > split_xh_h_;
-		shared_ptr<DropoutLayer<Dtype> > dropout_;
+		vector<shared_ptr<Blob<Dtype> > > XH_h_;
+		vector<vector<shared_ptr<Blob<Dtype> > > > XH_h_k_;
+
+		// concat_h_ layer
+		shared_ptr<ConcatLayer<Dtype> > concat_h_;
+
+		// concat_x_ layer
+		shared_ptr<ConcatLayer<Dtype> > concat_x_;
+		vector<shared_ptr<Blob<Dtype> > > XH_x_;
+
+		// ip_xh_h_ layer
+		vector<shared_ptr<InnerProductLayer<Dtype> > > ip_xh_h_;
+		vector<vector<shared_ptr<Blob<Dtype> > > > G_h_;
+
+		// lstm_unit_h_ layer
+		shared_ptr<LSTMUnitLayer<Dtype> > lstm_unit_h_;
+		vector<vector<shared_ptr<Blob<Dtype> > > > C_i_;
 	};
 
 	/**
@@ -739,6 +749,56 @@ namespace caffe {
 		float std_;
 		float mean_;
 		float prob_;
+	};
+
+	template <typename Dtype>
+	class RandomLossLayer : public LossLayer<Dtype> {
+	public:
+		explicit RandomLossLayer(const LayerParameter& param)
+			: LossLayer<Dtype>(param) {}
+		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "RandomLoss"; }
+		virtual inline int ExactNumTopBlobs() const { return -1; }
+		virtual inline int MinTopBlobs() const { return 1; }
+		virtual inline int MaxTopBlobs() const { return 2; }
+
+	protected:
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+
+		/// The internal SoftmaxLayer used to map predictions to a distribution.
+		shared_ptr<Layer<Dtype> > softmax_layer_;
+		/// prob stores the output probability predictions from the SoftmaxLayer.
+		Blob<Dtype> prob_;
+		/// bottom vector holder used in call to the underlying SoftmaxLayer::Forward
+		vector<Blob<Dtype>*> softmax_bottom_vec_;
+		/// top vector holder used in call to the underlying SoftmaxLayer::Forward
+		vector<Blob<Dtype>*> softmax_top_vec_;
+		/// Whether to ignore instances with a certain label.
+		bool has_ignore_label_;
+		/// The label indicating that an instance should be ignored.
+		int ignore_label_;
+		/// Whether to normalize the loss by the total number of values present
+		/// (otherwise just by the batch size).
+		bool normalize_;
+
+		int softmax_axis_, outer_num_, inner_num_;
+
+		Blob<unsigned int> random_idx_;
+		int num_label_;
+		float dropout_ratio_;
+		int uint_thres_;
 	};
 }  // namespace caffe
 

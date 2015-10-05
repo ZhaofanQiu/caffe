@@ -353,7 +353,7 @@ namespace caffe{
 			layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
 			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
 			EXPECT_EQ(this->blob_top_->shape(0), 2);
-			EXPECT_EQ(this->blob_top_->shape(1), 2);
+			EXPECT_EQ(this->blob_top_->shape(1), 9);
 			EXPECT_EQ(this->blob_top_->shape(2), 3);
 			EXPECT_EQ(this->blob_top_->shape(3), 2);
 			EXPECT_EQ(this->blob_top_->shape(4), 3);
@@ -470,9 +470,11 @@ int main(int argc, char** argv){
 	caffe::LSTMUnitLayerTest<float> test6;
 	test6.StartTest();
 	LOG(INFO) << "End test LSTMUnitLayer";
+	*/
 	caffe::GridLSTMLayerTest<float> test7;
 	test7.StartTest();
 	LOG(INFO) << "End test GridLSTMLayer";
+	/*
 	caffe::ExtractFrameLayerTest<float> test8;
 	test8.StartTest();
 	LOG(INFO) << "End test ExtractFrameLayer";

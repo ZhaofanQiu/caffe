@@ -336,7 +336,10 @@
     <ClCompile Include="..\src\caffe\layers\random_fusion_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\test_lstm_speed.cpp">
+    <ClCompile Include="..\src\caffe\layers\random_loss_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\caffe-light.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
@@ -491,9 +494,6 @@
     <CudaCompile Include="..\src\caffe\layers\lstm_unit_layer.cu">
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\grid_lstm_layer.cu">
-      <Filter>Source Files\layers</Filter>
-    </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\normalize_layer.cu">
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
@@ -504,6 +504,12 @@
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\random_fusion_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\grid_lstm_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\random_loss_layer.cu">
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
   </ItemGroup>

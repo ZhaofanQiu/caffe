@@ -21,10 +21,12 @@ namespace caffe {
 		return Dtype(1) / (Dtype(1) + exp(-x));
 	}
 
+	/*
 	template <typename Dtype>
 	__device__ Dtype tanh(const Dtype x) {
 		return Dtype(2) * sigmoid(Dtype(2) * x) - Dtype(1);
 	}
+	*/
 
 	template <typename Dtype>
 	__global__ void LSTMActsForward(const int nthreads, const int dim,

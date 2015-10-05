@@ -408,6 +408,13 @@ message LayerParameter {
   optional ParseEvaluateParameter parse_evaluate_param = 146;
   optional ExtractFrameParameter extract_frame_param = 147;
   optional RandomFusionParameter random_fusion_param = 148;
+  optional RandomLossParameter random_loss_param = 149;
+}
+
+// Message that stores parameters used by RandomLossLayer
+message RandomLossParameter {
+  optional int32 num_label = 1;
+  optional float dropout_ratio = 2 [default = 0];
 }
 
 // Message that stores parameters used by RandomFusionLayer
@@ -777,7 +784,6 @@ message InfogainLossParameter {
 
 message GridLSTMParameter {
   repeated bool reverse = 1; // if reverse the dim for the layer
-  optional int32 num_output = 2;
 }
 
 message InnerProductParameter {
