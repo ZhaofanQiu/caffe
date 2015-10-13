@@ -127,7 +127,7 @@ namespace caffe {
 		else{
 
 			LOG(INFO) << "read video from " << file_list_[id].c_str();
-			CHECK(ReadImageSequenceToVolumeDatum(file_list_[id].c_str(), 1, label_list_[id],
+			CHECK(ReadImageSequenceToVolumeDatum(file_list_[id].c_str(), start_frm_list_[id], label_list_[id],
 				new_length, new_height, new_width, sampling_rate, &datum));
 		}
 

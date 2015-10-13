@@ -765,6 +765,10 @@ class SoftmaxWithLossLayer : public LossLayer<Dtype> {
   /// (otherwise just by the batch size).
   bool normalize_;
 
+  // jay add
+  // the weight for different object classes when computing loss
+  std::vector<Dtype> loss_weights_;
+
   int softmax_axis_, outer_num_, inner_num_;
 };
 
