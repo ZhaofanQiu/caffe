@@ -444,13 +444,114 @@ namespace caffe{
 			EXPECT_EQ(this->blob_top_->shape(4), 7);
 		}
 	};
+
+	template <typename Dtype>
+	class MapLSTMUnitLayerTest {
+	public:
+		MapLSTMUnitLayerTest() :blob_bottom1_(new Blob<Dtype>()), blob_bottom2_(new Blob<Dtype>()),
+			blob_top1_(new Blob<Dtype>()), blob_top2_(new Blob<Dtype>()){
+			this->SetUp();
+		}
+		~MapLSTMUnitLayerTest(){ delete blob_bottom1_; delete blob_bottom2_; delete blob_top1_; delete blob_top2_; }
+
+	protected:
+		void SetUp(){
+			blob_bottom1_->Reshape(2, 2, 4, 5);
+			blob_bottom2_->Reshape(2, 8, 4, 5);
+
+			//fill the values
+			FillerParameter filler_param;
+			filler_param.set_value(1.);
+			GaussianFiller<Dtype> filler(filler_param);
+			filler.Fill(this->blob_bottom1_);
+			filler.Fill(this->blob_bottom2_);
+			blob_bottom_vec_.push_back(blob_bottom1_);
+			blob_bottom_vec_.push_back(blob_bottom2_);
+			blob_top_vec_.push_back(blob_top1_);
+			blob_top_vec_.push_back(blob_top2_);
+		}
+		Blob<Dtype>* const blob_bottom1_;
+		Blob<Dtype>* const blob_bottom2_;
+		Blob<Dtype>* const blob_top1_;
+		Blob<Dtype>* const blob_top2_;
+		vector<Blob<Dtype>*> blob_bottom_vec_;
+		vector<Blob<Dtype>*> blob_top_vec_;
+
+	public:
+		void StartTest(){
+			LayerParameter layer_param;
+
+			shared_ptr<Layer<Dtype>> layer(new MapLSTMUnitLayer<Dtype>(layer_param));
+			GradientChecker<Dtype> checker(1e-2, 1e-3);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			EXPECT_EQ(this->blob_top1_->shape(0), 2);
+			EXPECT_EQ(this->blob_top1_->shape(1), 2);
+			EXPECT_EQ(this->blob_top1_->shape(2), 4);
+			EXPECT_EQ(this->blob_top1_->shape(3), 5);
+			EXPECT_EQ(this->blob_top2_->shape(0), 2);
+			EXPECT_EQ(this->blob_top2_->shape(1), 2);
+			EXPECT_EQ(this->blob_top2_->shape(2), 4);
+			EXPECT_EQ(this->blob_top2_->shape(3), 5);
+		}
+	};
+
+	template <typename Dtype>
+	class MapLSTMLayerTest {
+	public:
+		MapLSTMLayerTest() :blob_bottom_(new Blob<Dtype>()),
+			blob_top_(new Blob<Dtype>()){
+			this->SetUp();
+		}
+		~MapLSTMLayerTest(){ delete blob_bottom_; delete blob_top_; }
+
+	protected:
+		void SetUp(){
+			blob_bottom_->Reshape(video_shape(2, 3, 3, 2, 3));
+			//fill the values
+			FillerParameter filler_param;
+			filler_param.set_value(1.);
+			GaussianFiller<Dtype> filler(filler_param);
+			filler.Fill(this->blob_bottom_);
+			blob_bottom_vec_.push_back(blob_bottom_);
+			blob_top_vec_.push_back(blob_top_);
+		}
+		Blob<Dtype>* const blob_bottom_;
+		Blob<Dtype>* const blob_top_;
+		vector<Blob<Dtype>*> blob_bottom_vec_;
+		vector<Blob<Dtype>*> blob_top_vec_;
+
+	public:
+		void StartTest(){
+			LayerParameter layer_param;
+			ConvolutionParameter* conv_param = layer_param.mutable_convolution_param();
+			conv_param->set_num_output(2);
+			conv_param->set_kernel_size(3);
+			conv_param->set_pad(1);
+			FillerParameter* fp1 = conv_param->mutable_weight_filler();
+			fp1->set_type("gaussian");
+			fp1->set_std(0.01);
+			FillerParameter* fp2 = conv_param->mutable_bias_filler();
+			fp2->set_type("constant");
+			fp2->set_value(0);
+
+			shared_ptr<Layer<Dtype>> layer(new MapLSTMLayer<Dtype>(layer_param));
+			GradientChecker<Dtype> checker(1e-2, 1e-3);
+			layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			EXPECT_EQ(this->blob_top_->shape(0), 2);
+			EXPECT_EQ(this->blob_top_->shape(1), 2);
+			EXPECT_EQ(this->blob_top_->shape(2), 3);
+			EXPECT_EQ(this->blob_top_->shape(3), 2);
+			EXPECT_EQ(this->blob_top_->shape(4), 3);
+		}
+	};
 }
 
 int main(int argc, char** argv){
 	FLAGS_logtostderr = 1;
-	caffe::Caffe::set_mode(caffe::Caffe::CPU);
-	//caffe::Caffe::set_mode(caffe::Caffe::GPU);
-	//caffe::Caffe::SetDevice(1);
+	//caffe::Caffe::set_mode(caffe::Caffe::CPU);
+	caffe::Caffe::set_mode(caffe::Caffe::GPU);
+	caffe::Caffe::SetDevice(1);
 	/*
 	caffe::Convolution3DLayerTest<float> test1;
 	test1.StartTest();
@@ -470,14 +571,18 @@ int main(int argc, char** argv){
 	caffe::LSTMUnitLayerTest<float> test6;
 	test6.StartTest();
 	LOG(INFO) << "End test LSTMUnitLayer";
-	*/
 	caffe::GridLSTMLayerTest<float> test7;
 	test7.StartTest();
 	LOG(INFO) << "End test GridLSTMLayer";
-	/*
 	caffe::ExtractFrameLayerTest<float> test8;
 	test8.StartTest();
 	LOG(INFO) << "End test ExtractFrameLayer";
 	*/
+	caffe::LSTMUnitLayerTest<float> test9;
+	test9.StartTest();
+	LOG(INFO) << "End test MapLSTMUnitLayer";
+	caffe::GridLSTMLayerTest<float> test10;
+	test10.StartTest();
+	LOG(INFO) << "End test MapLSTMLayer";
 	return 0;
 }

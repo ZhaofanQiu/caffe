@@ -23,6 +23,7 @@
 #include "caffe/data_layers.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/loss_layers.hpp"
+#include "caffe/vision_layers.hpp"
 #include "caffe/neuron_layers.hpp"
 #include "caffe/proto/caffe.pb.h"
 
@@ -799,6 +800,115 @@ namespace caffe {
 		int num_label_;
 		float dropout_ratio_;
 		int uint_thres_;
+	};
+
+	/**
+	* @brief A helper for LSTMLayer: computes a single timestep of the
+	*        non-linearity of the LSTM, producing the updated cell and hidden
+	*        states.
+	*/
+	template <typename Dtype>
+	class MapLSTMUnitLayer : public Layer<Dtype> {
+	public:
+		explicit MapLSTMUnitLayer(const LayerParameter& param)
+			: Layer<Dtype>(param) {}
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "MapLSTMUnit"; }
+
+		virtual inline int ExactNumBottomBlobs() const { return 2; }
+		virtual inline bool EqualNumBottomTopBlobs() const { return true; }
+
+	protected:
+		/**
+		* @param bottom input Blob vector (length, 2 * input_num)
+		*   -# @f$ (1 \times N \times D) @f$
+		*      the previous timestep cell state @f$ c_t-1 @f$
+		*   -# @f$ (1 \times N \times 4D) @f$
+		*      the "gate inputs" @f$ [i_t', f_t', o_t', g_t'] @f$
+		* @param top output Blob vector (length, input_num * 2)
+		*   -# @f$ (1 \times N \times D) @f$
+		*      the updated cell state @f$ c_t @f$, computed as:
+		*          i_t := \sigmoid[i_t']
+		*          f_t := \sigmoid[f_t']
+		*          o_t := \sigmoid[o_t']
+		*          g_t := \tanh[g_t']
+		*          c_t := cont_t * (f_t .* c_{t-1}) + (i_t .* g_t)
+		*   -# @f$ (1 \times N \times D) @f$
+		*      the updated hidden state @f$ h_t @f$, computed as:
+		*          h_t := o_t .* \tanh[c_t]
+		*/
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+		/// @brief The hidden and output dimension.
+		shared_ptr<Blob<Dtype> > X_acts_;
+	};
+
+	/**
+	* @brief Implementation of Map LSTM
+	*/
+	template <typename Dtype>
+	class MapLSTMLayer : public Layer<Dtype> {
+	public:
+		explicit MapLSTMLayer(const LayerParameter& param)
+			: Layer<Dtype>(param) {}
+
+		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "MapLSTM"; }
+
+		virtual inline int ExactNumBottomBlobs() const { return 1; }
+		virtual inline int ExactNumTopBlobs() const { return 1; }
+
+	protected:
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+		/// @brief The hidden and output dimension.
+		int hidden_dim_;
+		int T_;
+		bool bias_term_;
+		//Data blobs
+		shared_ptr<Blob<Dtype> > zero_memory_;
+
+		//Layers
+		// split_h_ layer
+		shared_ptr<SplitLayer<Dtype> > split_h_;
+		vector<shared_ptr<Blob<Dtype> > > H_;
+		vector<shared_ptr<Blob<Dtype> > > H_1_;
+		vector<shared_ptr<Blob<Dtype> > > H_2_;
+
+		// concat_h_ layer
+		shared_ptr<ConcatLayer<Dtype> > concat_;
+		vector<shared_ptr<Blob<Dtype> > > X_;
+		vector<shared_ptr<Blob<Dtype> > > XH_;
+
+		// conv_ layer
+		shared_ptr<ConvolutionLayer<Dtype> > conv_;
+		vector<shared_ptr<Blob<Dtype> > > G_;
+
+		// lstm_unit_h_ layer
+		shared_ptr<MapLSTMUnitLayer<Dtype> > lstm_unit_;
+		vector<shared_ptr<Blob<Dtype> > > C_;
 	};
 }  // namespace caffe
 

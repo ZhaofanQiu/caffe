@@ -42,11 +42,31 @@ void resize_blob_proto(BlobProto* proto, vector<int> shape)
 	}
 }
 
+void process_fc6(BlobProto* proto)
+{
+	LOG(INFO) << "process_fc6";
+	proto->clear_shape();
+	proto->mutable_shape()->add_dim(4096);
+	proto->mutable_shape()->add_dim(512);
+	proto->mutable_shape()->add_dim(4);
+	proto->mutable_shape()->add_dim(4);
+}
+
+void process_fc7(BlobProto* proto)
+{
+	LOG(INFO) << "process_fc7";
+	proto->clear_shape();
+	proto->mutable_shape()->add_dim(4096);
+	proto->mutable_shape()->add_dim(4096);
+	proto->mutable_shape()->add_dim(1);
+	proto->mutable_shape()->add_dim(1);
+}
+
 int main(int argc, char** argv) {
 	FLAGS_alsologtostderr = 1;
 	if (argc != 2)
 	{
-		cout << "usage: convert_c3d_model_and_mean.exe c3d_model" << endl;
+		cout << "usage: convert_c3d_model_full_convolutional.exe c3d_model" << endl;
 		return 0;
 	}
 	std::string model_path = argv[1];
@@ -59,30 +79,11 @@ int main(int argc, char** argv) {
 		caffe::LayerParameter* layer = param.mutable_layer(i);
 		if (layer->name() == "fc6-1")
 		{
-			vector<int> fc6_shape0(4, 0);
-			fc6_shape0[0] = 4096;
-			fc6_shape0[1] = 512;
-			fc6_shape0[2] = 4;
-			fc6_shape0[3] = 4;
-			resize_blob_proto(layer->mutable_blobs(0), fc6_shape0);
+			process_fc6(layer->mutable_blobs(0));
 		}
 		if (layer->name() == "fc7-1")
 		{
-			vector<int> fc7_shape0(4, 0);
-			fc7_shape0[0] = 4096;
-			fc7_shape0[1] = 4096;
-			fc7_shape0[2] = 1;
-			fc7_shape0[3] = 1;
-			resize_blob_proto(layer->mutable_blobs(0), fc7_shape0);
-		}
-		if (layer->name() == "fc8-1")
-		{
-			vector<int> fc8_shape0(4, 0);
-			fc8_shape0[0] = 487;
-			fc8_shape0[1] = 4096;
-			fc8_shape0[2] = 1;
-			fc8_shape0[3] = 1;
-			resize_blob_proto(layer->mutable_blobs(0), fc8_shape0);
+			process_fc7(layer->mutable_blobs(0));
 		}
 	}
 	caffe::WriteProtoToBinaryFile(param, "fc_conv3d_deepnetA_sport1m_iter_1900000");
