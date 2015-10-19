@@ -268,7 +268,7 @@ namespace caffe {
 		}
 
 		// For all sequence run lstm.
-		for (int t = T_ - 1; t >= 0; t++)
+		for (int t = T_ - 1; t >= 0; t--)
 		{
 			// 5 split
 			const vector<Blob<Dtype>*> split_bottom(1, H_[t].get());

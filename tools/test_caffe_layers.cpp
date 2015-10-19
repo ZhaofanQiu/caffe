@@ -578,10 +578,10 @@ int main(int argc, char** argv){
 	test8.StartTest();
 	LOG(INFO) << "End test ExtractFrameLayer";
 	*/
-	caffe::LSTMUnitLayerTest<float> test9;
+	caffe::MapLSTMUnitLayerTest<float> test9;
 	test9.StartTest();
 	LOG(INFO) << "End test MapLSTMUnitLayer";
-	caffe::GridLSTMLayerTest<float> test10;
+	caffe::MapLSTMLayerTest<float> test10;
 	test10.StartTest();
 	LOG(INFO) << "End test MapLSTMLayer";
 	return 0;
