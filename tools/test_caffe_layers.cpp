@@ -224,7 +224,7 @@ namespace caffe{
 
 	protected:
 		void SetUp(){
-			blob_bottom_->Reshape(6, 2, 10, 10);
+			blob_bottom_->Reshape(video_shape(2, 2, 3, 10, 10));
 			//fill the values
 			FillerParameter filler_param;
 			filler_param.set_value(1.);
@@ -242,17 +242,15 @@ namespace caffe{
 		void StartTest(){
 			LayerParameter layer_param;
 			VideoSwitchParameter* video_switch_param = layer_param.mutable_video_switch_param();
-			video_switch_param->set_switch_(VideoSwitchParameter_SwitchOp_VIDEO);
-			video_switch_param->set_frame_num(3);
+			video_switch_param->set_switch_(VideoSwitchParameter_SwitchOp_IMAGE);
 
 			shared_ptr<Layer<Dtype>> layer(new VideoSwitchLayer<Dtype>(layer_param));
 			GradientChecker<Dtype> checker(1e-3, 1e-3);
 			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
-			EXPECT_EQ(this->blob_top_->shape(0), 2);
+			EXPECT_EQ(this->blob_top_->shape(0), 6);
 			EXPECT_EQ(this->blob_top_->shape(1), 2);
-			EXPECT_EQ(this->blob_top_->shape(2), 3);
+			EXPECT_EQ(this->blob_top_->shape(2), 10);
 			EXPECT_EQ(this->blob_top_->shape(3), 10);
-			EXPECT_EQ(this->blob_top_->shape(4), 10);
 		}
 	};
 
@@ -550,9 +548,9 @@ namespace caffe{
 int main(int argc, char** argv){
 	FLAGS_logtostderr = 1;
 	//caffe::Caffe::set_mode(caffe::Caffe::CPU);
+	/*
 	caffe::Caffe::set_mode(caffe::Caffe::GPU);
 	caffe::Caffe::SetDevice(1);
-	/*
 	caffe::Convolution3DLayerTest<float> test1;
 	test1.StartTest();
 	LOG(INFO) << "End test Convolution3DLayer";
@@ -577,10 +575,10 @@ int main(int argc, char** argv){
 	caffe::ExtractFrameLayerTest<float> test8;
 	test8.StartTest();
 	LOG(INFO) << "End test ExtractFrameLayer";
-	*/
 	caffe::MapLSTMUnitLayerTest<float> test9;
 	test9.StartTest();
 	LOG(INFO) << "End test MapLSTMUnitLayer";
+	*/
 	caffe::MapLSTMLayerTest<float> test10;
 	test10.StartTest();
 	LOG(INFO) << "End test MapLSTMLayer";

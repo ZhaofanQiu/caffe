@@ -900,7 +900,7 @@ namespace caffe {
 		// concat_h_ layer
 		shared_ptr<ConcatLayer<Dtype> > concat_;
 		vector<shared_ptr<Blob<Dtype> > > X_;
-		vector<shared_ptr<Blob<Dtype> > > XH_;
+		vector<shared_ptr<Blob<Dtype> > > XHC_;
 
 		// conv_ layer
 		shared_ptr<ConvolutionLayer<Dtype> > conv_;
@@ -909,6 +909,11 @@ namespace caffe {
 		// lstm_unit_h_ layer
 		shared_ptr<MapLSTMUnitLayer<Dtype> > lstm_unit_;
 		vector<shared_ptr<Blob<Dtype> > > C_;
+
+		// split_c_ layer
+		shared_ptr<SplitLayer<Dtype> > split_c_;
+		vector<shared_ptr<Blob<Dtype> > > C_1_;
+		vector<shared_ptr<Blob<Dtype> > > C_2_;
 	};
 }  // namespace caffe
 

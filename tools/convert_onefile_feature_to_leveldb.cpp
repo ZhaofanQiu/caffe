@@ -27,10 +27,10 @@ using namespace caffe;  // NOLINT(build/namespaces)
 using std::pair;
 using std::string;
 
-#define CHANNELS 512
-#define LENGTH 16
-#define HEIGHT 60
-#define WIDTH 80
+#define CHANNELS 11
+#define LENGTH 1
+#define HEIGHT 720
+#define WIDTH 960
 
 float buf[CHANNELS * LENGTH * HEIGHT * WIDTH];
 
@@ -46,20 +46,36 @@ bool ReadOnefileFeatureToVolumeDatum(FILE* file, VolumeDatum* datum)
 	{
 		return false;
 	}
-
+	CHECK(num_dims == 4 || num_dims == 5);
+	
 	int* dims = new int[num_dims];
 	fread(dims, sizeof(__int32), num_dims, file);
+	if (num_dims == 5)
+	{
+		CHECK_EQ(dims[1], CHANNELS);
+		CHECK_EQ(dims[2], LENGTH);
+		CHECK_EQ(dims[3], HEIGHT);
+		CHECK_EQ(dims[4], WIDTH);
 
-	CHECK_EQ(dims[1], CHANNELS);
-	CHECK_EQ(dims[2], LENGTH);
-	CHECK_EQ(dims[3], HEIGHT);
-	CHECK_EQ(dims[4], WIDTH);
+		datum->set_channels(dims[1]);
+		datum->set_length(dims[2]);
+		datum->set_height(dims[3]);
+		datum->set_width(dims[4]);
+		datum->set_label(0);
+	}
+	else
+	{
+		CHECK_EQ(dims[1], CHANNELS);
+		CHECK_EQ(dims[2], HEIGHT);
+		CHECK_EQ(dims[3], WIDTH);
 
-	datum->set_channels(dims[1]);
-	datum->set_length(dims[2]);
-	datum->set_height(dims[3]);
-	datum->set_width(dims[4]);
-	datum->set_label(0);
+		datum->set_channels(dims[1]);
+		datum->set_length(1);
+		datum->set_height(dims[2]);
+		datum->set_width(dims[3]);
+		datum->set_label(0);
+	}
+
 
 	datum->clear_data();
 	datum->clear_float_data();
