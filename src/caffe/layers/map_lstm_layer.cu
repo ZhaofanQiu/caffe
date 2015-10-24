@@ -78,7 +78,7 @@ namespace caffe {
 				lstm_bottom[0] = C_2_[t - 1].get();
 			}
 			lstm_bottom[1] = G_[t].get();
-
+			
 			vector<Blob<Dtype>*> lstm_top{
 				C_[t].get(),
 				H_[t].get()
@@ -187,7 +187,7 @@ namespace caffe {
 			}
 
 			const vector<Blob<Dtype>*> concat_top(1, XHC_[t].get());
-			concat_->Backward(concat_top, vector<bool>(2, true), concat_bottom);
+			concat_->Backward(concat_top, vector<bool>(3, true), concat_bottom);
 		}
 		//6. copy top.
 		Dtype* bottom_data = bottom[0]->mutable_gpu_diff();
