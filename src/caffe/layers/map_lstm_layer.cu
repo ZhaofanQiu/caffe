@@ -110,10 +110,6 @@ namespace caffe {
 	void MapLSTMLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
 		const vector<bool>& propagate_down,
 		const vector<Blob<Dtype>*>& bottom) {
-		if (!propagate_down[0])
-		{
-			return;
-		}
 
 		const int num = bottom[0]->shape(0);
 		const int channels = bottom[0]->shape(1);
@@ -124,9 +120,11 @@ namespace caffe {
 		const int inner = bottom[0]->count(3);;
 
 		conv_->blobs()[0]->ShareData(*(blobs_[0]));
+		conv_->blobs()[0]->ShareDiff(*(blobs_[0]));
 		if (bias_term_)
 		{
 			conv_->blobs()[1]->ShareData(*(blobs_[1]));
+			conv_->blobs()[1]->ShareDiff(*(blobs_[1]));
 		}
 		//6. copy top.
 		const Dtype* top_data = top[0]->gpu_diff();

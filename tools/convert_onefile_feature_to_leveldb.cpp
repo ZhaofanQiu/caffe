@@ -27,10 +27,10 @@ using namespace caffe;  // NOLINT(build/namespaces)
 using std::pair;
 using std::string;
 
-#define CHANNELS 11
+#define CHANNELS 40012800
 #define LENGTH 1
-#define HEIGHT 720
-#define WIDTH 960
+#define HEIGHT 1
+#define WIDTH 1
 
 float buf[CHANNELS * LENGTH * HEIGHT * WIDTH];
 

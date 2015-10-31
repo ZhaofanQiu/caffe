@@ -49,13 +49,15 @@ namespace caffe {
 		const int channels = bottom[0]->shape(1);
 		const int inner = bottom[0]->count(1);
 
+		const Dtype* C_prev = bottom[0]->cpu_data();
+		const Dtype* X = bottom[1]->cpu_data();
+		Dtype* C = top[0]->mutable_cpu_data();
+		Dtype* H = top[1]->mutable_cpu_data();
+		
 		for (int o = 0; o < outer; ++o)
 		{
-			const Dtype* C_prev = bottom[0]->cpu_data();
-			const Dtype* X = bottom[1]->cpu_data();
-			Dtype* C = top[0]->mutable_cpu_data();
-			Dtype* H = top[1]->mutable_cpu_data();
-			for (int ii = 0; ii < inner; ++ii) {
+			for (int ii = 0; ii < inner; ++ii) 
+			{
 				const Dtype i = sigmoid(X[ii]);
 				const Dtype f = sigmoid(X[1 * inner + ii]);
 				const Dtype o = sigmoid(X[2 * inner + ii]);
@@ -85,17 +87,17 @@ namespace caffe {
 		const int channels = bottom[0]->shape(1);
 		const int inner = bottom[0]->count(1);
 
+		const Dtype* C_prev = bottom[0]->cpu_data();
+		const Dtype* X = bottom[1]->cpu_data();
+		const Dtype* C = top[0]->cpu_data();
+		const Dtype* H = top[1]->cpu_data();
+		const Dtype* C_diff = top[0]->cpu_diff();
+		const Dtype* H_diff = top[1]->cpu_diff();
+		Dtype* C_prev_diff = bottom[0]->mutable_cpu_diff();
+		Dtype* X_diff = bottom[1]->mutable_cpu_diff();
+
 		for (int o = 0; o < outer; ++o)
 		{
-			const Dtype* C_prev = bottom[0]->cpu_data();
-			const Dtype* X = bottom[1]->cpu_data();
-			const Dtype* C = top[0]->cpu_data();
-			const Dtype* H = top[1]->cpu_data();
-
-			const Dtype* C_diff = top[0]->cpu_diff();
-			const Dtype* H_diff = top[1]->cpu_diff();
-			Dtype* C_prev_diff = bottom[0]->mutable_cpu_diff();
-			Dtype* X_diff = bottom[1]->mutable_cpu_diff();
 			for (int ii = 0; ii < inner; ++ii) {
 				const Dtype i = sigmoid(X[ii]);
 				const Dtype f = sigmoid(X[1 * inner + ii]);

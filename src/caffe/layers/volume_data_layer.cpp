@@ -31,16 +31,6 @@ namespace caffe {
 	template <typename Dtype>
 	VolumeDataLayer<Dtype>::VolumeDataLayer(const LayerParameter& param)
 		: BasePrefetchingDataLayer<Dtype>(param){
-	}
-
-	template <typename Dtype>
-	VolumeDataLayer<Dtype>::~VolumeDataLayer() {
-		this->StopInternalThread();
-	}
-
-	template <typename Dtype>
-	void VolumeDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
-		const vector<Blob<Dtype>*>& top) {
 		// Initialize the leveldb
 		leveldb::DB* db_temp;
 		leveldb::Options options;
@@ -67,6 +57,16 @@ namespace caffe {
 				}
 			}
 		}
+	}
+
+	template <typename Dtype>
+	VolumeDataLayer<Dtype>::~VolumeDataLayer() {
+		this->StopInternalThread();
+	}
+
+	template <typename Dtype>
+	void VolumeDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
+		const vector<Blob<Dtype>*>& top) {
 		// Read a data point, and use it to initialize the top blob.
 		VolumeDatum datum;
 		datum.ParseFromString(iter_->value().ToString());

@@ -30,36 +30,29 @@ using caffe::BlobShape;
 
 int main(int argc, char** argv) {
 	FLAGS_alsologtostderr = 1;
-	if (argc != 2)
+	if (argc != 3)
 	{
-		cout << "usage: load_model.exe model" << endl;
+		cout << "usage: load_model.exe model1 model2" << endl;
 		return 0;
 	}
 
-	std::string model_path = argv[1];
+	std::string model1_path = argv[1];
+	std::string model2_path = argv[2];
 
 	//load model
-	NetParameter param;
-	caffe::ReadProtoFromBinaryFile(model_path, &param);
-	for (int i = 0; i < param.layer_size(); ++i) 
+	NetParameter param1, param2;
+	caffe::ReadProtoFromBinaryFile(model1_path, &param1);
+	caffe::ReadProtoFromBinaryFile(model2_path, &param2);
+	for (int i = 0; i < param1.layer_size(); ++i) 
 	{
-		const caffe::LayerParameter layer = param.layer(i);
-		if (layer.name() == "all_score11")
+		const caffe::LayerParameter layer1 = param1.layer(i);
+		const caffe::LayerParameter layer2 = param2.layer(i);
+		if (layer1.name() == "pool5_lstm")
 		{
-			FILE* file = fopen("output.bin", "wb");
-			cout << layer.blobs(0).data_size() << endl;
-			for (int i = 0; i < layer.blobs(0).data_size(); ++i)
+			for (int i = 0; i < 100; ++i)
 			{
-				const float temp = layer.blobs(0).data(i);
-				fwrite(&temp, sizeof(float), 1, file);
+				cout << layer1.blobs(0).data(i) << " " << layer2.blobs(0).data(i) << endl;
 			}
-			cout << layer.blobs(1).data_size() << endl;
-			for (int i = 0; i < layer.blobs(1).data_size(); ++i)
-			{
-				const float temp = layer.blobs(1).data(i);
-				fwrite(&temp, sizeof(float), 1, file);
-			}
-			fclose(file);
 		}
 	}
 	return 0;

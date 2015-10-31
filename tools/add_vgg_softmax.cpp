@@ -42,9 +42,9 @@ int main(int argc, char** argv) {
 	//convert model
 	NetParameter param;
 	caffe::ReadProtoFromBinaryFile(model_path, &param);
-	std::ifstream fin("output.bin", std::ios::ios_base::binary | std::ios::ios_base::in);
-	float buffer1[11 * 132];
-	fin.read((char*)buffer1, 11 * 132 * sizeof(float));
+	std::ifstream fin("output1.bin", std::ios::ios_base::binary | std::ios::ios_base::in);
+	float buffer1[11 * 66];
+	fin.read((char*)buffer1, 11 * 66 * sizeof(float));
 
 	float buffer2[11];
 	fin.read((char*)buffer2, 11 * sizeof(float));
@@ -57,18 +57,15 @@ int main(int argc, char** argv) {
 	w1->mutable_shape()->add_dim(66);
 	w1->mutable_shape()->add_dim(1);
 	w1->mutable_shape()->add_dim(1);
-	for (int i = 0; i < 11; ++i)
+	for (int i = 0; i < 11 * 66; ++i)
 	{
-		for (int j = 0; j < 66; ++j)
-		{
-			w1->add_data(buffer1[i * 132 + j]);
-		}
+		w1->add_data(buffer1[i]);
 	}
 	BlobProto* w2 = new_layer->add_blobs();
 	w2->mutable_shape()->add_dim(11);
 	for (int i = 0; i < 11; ++i)
 	{
-		w2->add_data(buffer2[i] / 2);
+		w2->add_data(buffer2[i]);
 	}
 	caffe::WriteProtoToBinaryFile(param, "vgg_large_softmax_fusion.caffemodel");
 	return 0;

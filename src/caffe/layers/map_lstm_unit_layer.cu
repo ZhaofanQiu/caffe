@@ -75,7 +75,7 @@ namespace caffe {
 		Dtype* X_acts = X_acts_->mutable_gpu_data();
 		// NOLINT_NEXT_LINE(whitespace/operators)
 		MapLSTMActsForward<Dtype> << <CAFFE_GET_BLOCKS(outer * inner * 4), CAFFE_CUDA_NUM_THREADS >> >(
-			outer * inner * 4, inner * 4, X, X_acts);
+			outer * inner * 4, inner, X, X_acts);
 		CUDA_POST_KERNEL_CHECK;
 		// NOLINT_NEXT_LINE(whitespace/operators)
 		MapLSTMUnitForward<Dtype> << <CAFFE_GET_BLOCKS(outer * inner), CAFFE_CUDA_NUM_THREADS >> >(
@@ -157,7 +157,7 @@ namespace caffe {
 		Dtype* X_acts_diff = X_acts_->mutable_gpu_diff();
 
 		MapLSTMActsForward<Dtype> << <CAFFE_GET_BLOCKS(outer * inner * 4), CAFFE_CUDA_NUM_THREADS >> >(
-			outer * inner * 4, inner * 4, X, X_acts);
+			outer * inner * 4, inner, X, X_acts);
 		CUDA_POST_KERNEL_CHECK;
 		MapLSTMUnitBackward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
 			<< <CAFFE_GET_BLOCKS(outer * inner), CAFFE_CUDA_NUM_THREADS >> >(outer * inner, inner,
@@ -165,7 +165,7 @@ namespace caffe {
 		CUDA_POST_KERNEL_CHECK;
 		MapLSTMActsBackward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
 			<< <CAFFE_GET_BLOCKS(outer * inner * 4), CAFFE_CUDA_NUM_THREADS >> >(
-			outer * inner * 4, inner * 4, X_acts, X_acts_diff, X_diff);
+			outer * inner * 4, inner, X_acts, X_acts_diff, X_diff);
 		CUDA_POST_KERNEL_CHECK;
 	}
 

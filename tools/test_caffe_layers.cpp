@@ -536,6 +536,8 @@ namespace caffe{
 			GradientChecker<Dtype> checker(1e-2, 1e-3);
 			layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
 			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
+			checker.CheckGradientExhaustive(layer.get(), this->blob_bottom_vec_, this->blob_top_vec_);
 			EXPECT_EQ(this->blob_top_->shape(0), 2);
 			EXPECT_EQ(this->blob_top_->shape(1), 2);
 			EXPECT_EQ(this->blob_top_->shape(2), 3);
@@ -575,10 +577,10 @@ int main(int argc, char** argv){
 	caffe::ExtractFrameLayerTest<float> test8;
 	test8.StartTest();
 	LOG(INFO) << "End test ExtractFrameLayer";
+	*/
 	caffe::MapLSTMUnitLayerTest<float> test9;
 	test9.StartTest();
 	LOG(INFO) << "End test MapLSTMUnitLayer";
-	*/
 	caffe::MapLSTMLayerTest<float> test10;
 	test10.StartTest();
 	LOG(INFO) << "End test MapLSTMLayer";

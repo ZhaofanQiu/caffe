@@ -77,6 +77,11 @@ int main(int argc, char** argv) {
 	update_blob_3d_proto(old_mean_proto, &new_mean_proto, true);
 	caffe::WriteProtoToBinaryFile(new_mean_proto, "new_sport1m_train16_128_mean.binaryproto");
 
+	BlobProto proto;
+	caffe::ReadProtoFromBinaryFileOrDie("", &proto);
+	3*227*227
+	proto.shape().dim()
+	proto.data(i)
 	//convert model
 	NetParameter3D old_param;
 	NetParameter new_param;
