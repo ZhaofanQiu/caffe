@@ -345,7 +345,7 @@
     <ClCompile Include="..\src\caffe\layers\map_lstm_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\caffe-light.cpp">
+    <ClCompile Include="..\tools\test_caffe_layers.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
