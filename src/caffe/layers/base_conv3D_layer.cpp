@@ -92,6 +92,7 @@ void BaseConvolution3DLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& botto
       bias_filler->Fill(this->blobs_[1].get());
     }
   }
+
   // Propagate gradients to the parameters (as directed by backward pass).
   this->param_propagate_down_.resize(this->blobs_.size(), true);
 }

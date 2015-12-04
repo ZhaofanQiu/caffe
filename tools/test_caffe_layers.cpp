@@ -545,14 +545,72 @@ namespace caffe{
 			EXPECT_EQ(this->blob_top_->shape(4), 3);
 		}
 	};
+	template <typename Dtype>
+	class RBMConv3DLayerTest {
+	public:
+		RBMConv3DLayerTest() :blob_bottom_(new Blob<Dtype>()),
+			blob_top_(new Blob<Dtype>()){
+			this->SetUp();
+		}
+		~RBMConv3DLayerTest(){ delete blob_bottom_; delete blob_top_; }
+
+	protected:
+		void SetUp(){
+			blob_bottom_->Reshape(video_shape(2, 2, 3, 10, 10));
+			//fill the values
+			FillerParameter filler_param;
+			filler_param.set_value(1.);
+			GaussianFiller<Dtype> filler(filler_param);
+			filler.Fill(this->blob_bottom_);
+			blob_bottom_vec_.push_back(blob_bottom_);
+			blob_top_vec_.push_back(blob_top_);
+		}
+		Blob<Dtype>* const blob_bottom_;
+		Blob<Dtype>* const blob_top_;
+		vector<Blob<Dtype>*> blob_bottom_vec_;
+		vector<Blob<Dtype>*> blob_top_vec_;
+
+	public:
+		void StartTest(){
+			LayerParameter layer_param;
+			Convolution3DParameter* convolution_param = layer_param.mutable_convolution3d_param();
+			convolution_param->set_kernel_size(3);
+			convolution_param->set_kernel_l(3);
+			convolution_param->set_pad(1);
+			convolution_param->set_pad_l(1);
+			convolution_param->set_num_output(5);
+			convolution_param->mutable_weight_filler()->set_type("gaussian");
+			convolution_param->mutable_weight_filler()->set_std(0.01);
+			convolution_param->mutable_bias_filler()->set_type("constant");
+			convolution_param->mutable_bias_filler()->set_value(1.);
+
+			shared_ptr<Layer<Dtype>> layer(new RBMConv3DLayer<Dtype>(layer_param));
+			LOG(INFO) << "Run setup";
+			layer->SetUp(blob_bottom_vec_, blob_top_vec_);
+			for (int i = 0; i < 10; i++)
+			{
+				LOG(INFO) << "Run forward";
+				layer->Forward(blob_bottom_vec_, blob_top_vec_);
+				save_data_to_file(blob_top_->count(), blob_top_->cpu_data(), "top.txt");
+				wait_key();
+				LOG(INFO) << "Run backward";
+				layer->Backward(blob_top_vec_, vector<bool>(1, true), blob_bottom_vec_);
+			}
+			EXPECT_EQ(this->blob_top_->shape(0), 2);
+			EXPECT_EQ(this->blob_top_->shape(1), 2);
+			EXPECT_EQ(this->blob_top_->shape(2), 3);
+			EXPECT_EQ(this->blob_top_->shape(3), 10);
+			EXPECT_EQ(this->blob_top_->shape(4), 10);
+		}
+	};
 }
 
 int main(int argc, char** argv){
 	FLAGS_logtostderr = 1;
 	//caffe::Caffe::set_mode(caffe::Caffe::CPU);
-	/*
 	caffe::Caffe::set_mode(caffe::Caffe::GPU);
-	caffe::Caffe::SetDevice(1);
+	caffe::Caffe::SetDevice(0);
+	/*
 	caffe::Convolution3DLayerTest<float> test1;
 	test1.StartTest();
 	LOG(INFO) << "End test Convolution3DLayer";
@@ -565,7 +623,7 @@ int main(int argc, char** argv){
 	caffe::CropLayerTest<float> test4;
 	test4.StartTest();
 	LOG(INFO) << "End test CropLayer";
-	caffe::VideoSwitchLayerTest<float> test5;
+	caffe::VideoSwitchLayerTest<float> test5;t
 	test5.StartTest();
 	LOG(INFO) << "End test VideoSwitchLayer";
 	caffe::LSTMUnitLayerTest<float> test6;
@@ -577,12 +635,15 @@ int main(int argc, char** argv){
 	caffe::ExtractFrameLayerTest<float> test8;
 	test8.StartTest();
 	LOG(INFO) << "End test ExtractFrameLayer";
-	*/
 	caffe::MapLSTMUnitLayerTest<float> test9;
 	test9.StartTest();
 	LOG(INFO) << "End test MapLSTMUnitLayer";
 	caffe::MapLSTMLayerTest<float> test10;
 	test10.StartTest();
 	LOG(INFO) << "End test MapLSTMLayer";
+	*/
+	caffe::RBMConv3DLayerTest<float> test11;
+	test11.StartTest();
+	LOG(INFO) << "End test RBMConv3DLayer";
 	return 0;
 }

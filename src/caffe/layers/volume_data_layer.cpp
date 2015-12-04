@@ -183,8 +183,9 @@ namespace caffe {
 
 			read_time += timer.MicroSeconds();
 			timer.Start();
-			int offset = batch->data_.offset(vector<int>(1, item_id));
-			Dtype* top_data = prefetch_data + offset;
+			//int offset = batch->data_.offset(vector<int>(1, item_id));
+			//Dtype* top_data = prefetch_data + offset;
+			Dtype* top_data = prefetch_data;
 			const string& data = datum.data();
 			if (crop_size) {
 				CHECK(data.size()) << "Image cropping only support uint8 data";

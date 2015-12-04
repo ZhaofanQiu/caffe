@@ -43,6 +43,41 @@ namespace caffe {
 		return shape;
 	}
 
+	void save_data_to_file(const int count, const float* data, const string filename)
+	{
+		FILE* fp = fopen(filename.c_str(), "w");
+		for (int i = 0; i < count; ++i)
+		{
+			if (i != 0 && i % 100 == 0)
+			{
+				fprintf(fp, "\n");
+			}
+			fprintf(fp, "%f\t", data[i]);
+		}
+		fclose(fp);
+	}
+
+	void save_data_to_file(const int count, const double* data, const string filename)
+	{
+		FILE* fp = fopen(filename.c_str(), "w");
+		for (int i = 0; i < count; ++i)
+		{
+			if (i != 0 && i % 100 == 0)
+			{
+				fprintf(fp, "\n");
+			}
+			fprintf(fp, "%lf\t", data[i]);
+		}
+		fclose(fp);
+	}
+
+	void wait_key()
+	{
+		printf("Press enter...\n");
+		char c;
+		scanf("%c", &c);
+	}
+
 	template <typename Dtype>
 	VideoDataLayer<Dtype>::~VideoDataLayer<Dtype>()
 	{
@@ -302,7 +337,8 @@ namespace caffe {
 			}
 
 			if (this->phase_ == Phase::TEST){
-				CHECK(read_status) << "Testing must not miss any example";
+				CHECK(read_status) << "Testing must not miss any example"
+					<< " File: " << this->file_list_[id].c_str() << " Frame: " << this->start_frm_list_[id];
 			}
 
 			if (!read_status) {
@@ -322,8 +358,9 @@ namespace caffe {
 			read_time += timer.MicroSeconds();
 
 			timer.Start();
-			int offset = batch->data_.offset(vector<int>(1, item_id));
-			Dtype* top_data = prefetch_data + offset;
+			//int offset = batch->data_.offset(vector<int>(1, item_id));
+			//Dtype* top_data = prefetch_data + offset;
+			Dtype* top_data = prefetch_data;
 			//LOG(INFO) << "--> " << item_id;
 			//LOG(INFO) << "label " << datum.label();
 			const string& data = datum.data();
@@ -360,6 +397,7 @@ namespace caffe {
 					}
 				}
 				else {
+
 					// Normal copy
 					for (int c = 0; c < channels; ++c) {
 						for (int l = 0; l < length; ++l) {
@@ -370,6 +408,8 @@ namespace caffe {
 									int data_index = ((c * length + l) * height + h + h_off) * width + w + w_off;
 									Dtype datum_element =
 										static_cast<Dtype>(static_cast<uint8_t>(data[data_index]));
+
+
 									top_data[top_index] = (datum_element - mean[data_index]) * scale;
 									if (show_data)
 										data_buffer[((c * length + l) * crop_size + h)

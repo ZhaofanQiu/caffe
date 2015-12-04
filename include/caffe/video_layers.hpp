@@ -26,10 +26,16 @@
 #include "caffe/vision_layers.hpp"
 #include "caffe/neuron_layers.hpp"
 #include "caffe/proto/caffe.pb.h"
+#include "caffe/net.hpp"
 
 namespace caffe {
 
 	vector<int> video_shape(int num, int channels = 0, int length = 0, int height = 0, int width = 0);
+
+	void save_data_to_file(const int count, const float* data, const string filename);
+	void save_data_to_file(const int count, const double* data, const string filename);
+
+	void wait_key();
 
 	/**
 	* @brief Layer to read video data from list.
@@ -64,6 +70,65 @@ namespace caffe {
 		Blob<Dtype> data_mean_;
 		int origin_width_;
 		int origin_height_;
+	};
+
+	/**
+	* @brief Layer to read video data from list.
+	*/
+	template <typename Dtype>
+	class BinDataLayer : public BasePrefetchingDataLayer<Dtype> {
+	public:
+		explicit BinDataLayer(const LayerParameter& param)
+			: BasePrefetchingDataLayer<Dtype>(param) {}
+		virtual ~BinDataLayer();
+		virtual void DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "BinData"; }
+		virtual inline int ExactNumBottomBlobs() const { return 0; }
+		virtual inline int MinNumTopBlobs() const { return 1; }
+		virtual inline int MaxNumTopBlobs() const { return 2; }
+
+	protected:
+		shared_ptr<Caffe::RNG> prefetch_rng_;
+		virtual void load_batch(Batch<Dtype>* batch);
+		virtual void ShuffleVideo();
+		virtual unsigned int PrefetchRand();
+
+		vector<string> file_list_;
+		vector<int> label_list_;
+		vector<int> shuffle_index_;
+		int lines_id_;
+		vector<int> top_shape_;
+		int channels_;
+		int length_;
+		int height_;
+		int width_;
+	};
+
+	/**
+	* @brief Layer to read video data from list.
+	*/
+	template <typename Dtype>
+	class OnefileDataLayer : public BasePrefetchingDataLayer<Dtype> {
+	public:
+		explicit OnefileDataLayer(const LayerParameter& param)
+			: BasePrefetchingDataLayer<Dtype>(param) {}
+		virtual ~OnefileDataLayer();
+		virtual void DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "OnefileData"; }
+		virtual inline int ExactNumBottomBlobs() const { return 0; }
+		virtual inline int ExactNumTopBlobs() const { return 1; }
+
+	protected:
+		virtual void load_batch(Batch<Dtype>* batch);
+
+		string source_;
+		FILE* fp_;
+
+		vector<int> top_shape_;
 	};
 
 	/**
@@ -128,6 +193,10 @@ namespace caffe {
 		bool bias_term_;
 		bool is_1x1_;
 
+		Blob<Dtype> bias_multiplier_;
+		static Blob<Dtype> col_buffer_;
+		//Blob<Dtype> col_buffer_;
+		int conv_out_spatial_dim_;
 	private:
 		// wrap im2col/col2im so we don't have to remember the (long) argument lists
 		inline void conv_vol2col_cpu(const Dtype* data, Dtype* col_buff) {
@@ -148,20 +217,15 @@ namespace caffe {
 				kernel_size_, kernel_l_, pad_, pad_l_, stride_, stride_l_, filter_stride_, filter_stride_l_, data);
 		}
 #endif
-
 		int conv_out_channels_;
 		int conv_in_channels_;
-		int conv_out_spatial_dim_;
 		int conv_in_length_;
 		int conv_in_height_;
 		int conv_in_width_;
 		int kernel_dim_;
-		int weight_offset_;
+		int weight_offset_; 
 		int col_offset_;
 		int output_offset_;
-
-		static Blob<Dtype> col_buffer_;
-		Blob<Dtype> bias_multiplier_;
 	};
 
 	/**
@@ -909,6 +973,72 @@ namespace caffe {
 		shared_ptr<MapLSTMUnitLayer<Dtype> > lstm_unit_;
 		vector<shared_ptr<Blob<Dtype> > > C_;
 
+	};
+
+	template <typename Dtype>
+	class EncodeMachineLayer : public Layer<Dtype> {
+	public:
+		explicit EncodeMachineLayer(const LayerParameter& param)
+			: Layer<Dtype>(param) {
+			}
+		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "EncodeMachine"; }
+		virtual inline int ExactNumBottomBlobs() const { return 1; }
+		virtual inline int ExactNumTopBlobs() const { return 2; }
+
+	protected:
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+		string net_file_;
+		shared_ptr<Net<Dtype> > net_;
+		int encode_begin_, encode_end_, decode_begin_, decode_end_;
+		Dtype loss_weight_;
+		int cd_k_, s_k_;
+
+		int count_v_, count_h_;
+		shared_ptr<Blob<Dtype> > vis_blob_, hid_blob_, re_vis_blob_;
+		shared_ptr<Blob<Dtype> > v0_, mean_h0_, h0_, vk_, hk_;
+		shared_ptr<Blob<Dtype> > sample_v_, sample_h_;
+		shared_ptr<Blob<Dtype> > diff_v_;
+	};
+
+	template <typename Dtype>
+	class L1LossLayer : public Layer<Dtype> {
+	public:
+		explicit L1LossLayer(const LayerParameter& param)
+			: Layer<Dtype>(param) {
+			}
+		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
+		virtual inline const char* type() const { return "L1Loss"; }
+		virtual inline int ExactNumBottomBlobs() const { return 1; }
+		virtual inline int ExactNumTopBlobs() const { return 1; }
+	protected:
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+		Dtype eps_;
 	};
 }  // namespace caffe
 

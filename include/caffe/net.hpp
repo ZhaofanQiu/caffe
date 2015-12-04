@@ -240,7 +240,10 @@ class Net {
   /// @brief The phase: TRAIN or TEST
   Phase phase_;
   /// @brief Individual layers in the net
+  //Zhaofan
+  public:
   vector<shared_ptr<Layer<Dtype> > > layers_;
+  protected:
   vector<string> layer_names_;
   map<string, int> layer_names_index_;
   vector<bool> layer_need_backward_;
@@ -264,8 +267,11 @@ class Net {
   vector<vector<int> > param_id_vecs_;
   vector<int> param_owners_;
   vector<string> param_display_names_;
+  // Zhaofan
+  public:
   vector<pair<int, int> > param_layer_indices_;
   map<string, int> param_names_index_;
+  protected:
   /// blob indices for the input and the output of the net
   vector<int> net_input_blob_indices_;
   vector<int> net_output_blob_indices_;

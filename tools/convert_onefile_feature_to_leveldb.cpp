@@ -27,10 +27,10 @@ using namespace caffe;  // NOLINT(build/namespaces)
 using std::pair;
 using std::string;
 
-#define CHANNELS 40012800
+#define CHANNELS 512 
 #define LENGTH 1
-#define HEIGHT 1
-#define WIDTH 1
+#define HEIGHT 7 
+#define WIDTH 7 
 
 float buf[CHANNELS * LENGTH * HEIGHT * WIDTH];
 
@@ -41,15 +41,21 @@ bool ReadOnefileFeatureToVolumeDatum(FILE* file, VolumeDatum* datum)
 		LOG(ERROR) << "Could not open or find file ";
 		return false;
 	}
+	/*
 	int num_dims;
 	if (!fread(&num_dims, sizeof(__int32), 1, file))
 	{
 		return false;
 	}
 	CHECK(num_dims == 4 || num_dims == 5);
+	*/
+	int num_dims = 5;
 	
 	int* dims = new int[num_dims];
-	fread(dims, sizeof(__int32), num_dims, file);
+	if (fread(dims, sizeof(__int32), num_dims, file) != num_dims)
+	{
+		return false;
+	}
 	if (num_dims == 5)
 	{
 		CHECK_EQ(dims[1], CHANNELS);

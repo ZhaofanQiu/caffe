@@ -26,6 +26,12 @@ namespace caffe {
 	}
 
 	template <typename Dtype>
+	inline Dtype relu(Dtype x) {
+		return (x > 0 ? x : 0);
+	}
+
+
+	template <typename Dtype>
 	void MapLSTMUnitLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top) {
 
@@ -61,12 +67,11 @@ namespace caffe {
 				const Dtype i = sigmoid(X[ii]);
 				const Dtype f = sigmoid(X[1 * inner + ii]);
 				const Dtype o = sigmoid(X[2 * inner + ii]);
-				const Dtype g = tanh(X[3 * inner + ii]);
+				const Dtype g = relu(X[3 * inner + ii]);
 				const Dtype c_prev = C_prev[ii];
 				const Dtype c = f * c_prev + i * g;
 				C[ii] = c;
-				const Dtype tanh_c = tanh(c);
-				H[ii] = o * tanh_c;
+				H[ii] = o * c;
 			}
 			C_prev += inner;
 			X += inner * 4;
@@ -102,22 +107,21 @@ namespace caffe {
 				const Dtype i = sigmoid(X[ii]);
 				const Dtype f = sigmoid(X[1 * inner + ii]);
 				const Dtype o = sigmoid(X[2 * inner + ii]);
-				const Dtype g = tanh(X[3 * inner + ii]);
+				const Dtype g = relu(X[3 * inner + ii]);
 				const Dtype c_prev = C_prev[ii];
 				const Dtype c = C[ii];
-				const Dtype tanh_c = tanh(c);
 				Dtype* c_prev_diff = C_prev_diff + ii;
 				Dtype* i_diff = X_diff + ii;
 				Dtype* f_diff = X_diff + 1 * inner + ii;
 				Dtype* o_diff = X_diff + 2 * inner + ii;
 				Dtype* g_diff = X_diff + 3 * inner + ii;
 				const Dtype c_term_diff =
-					C_diff[ii] + H_diff[ii] * o * (1 - tanh_c * tanh_c);
+					C_diff[ii] + H_diff[ii] * o;
 				*c_prev_diff = c_term_diff * f;
 				*i_diff = c_term_diff * g * i * (1 - i);
 				*f_diff = c_term_diff * c_prev * f * (1 - f);
-				*o_diff = H_diff[ii] * tanh_c * o * (1 - o);
-				*g_diff = c_term_diff * i * (1 - g * g);;
+				*o_diff = H_diff[ii] * c * o * (1 - o);
+				*g_diff = g > 0 ? c_term_diff * i : 0;
 			}
 			C_prev += inner;
 			X += inner * 4;

@@ -27,6 +27,11 @@ namespace caffe {
 	}
 
 	template <typename Dtype>
+	__device__ Dtype relu(const Dtype x) {
+		return x > 0 ? x : 0;
+	}
+
+	template <typename Dtype>
 	__global__ void MapLSTMActsForward(const int nthreads, const int dim,
 		const Dtype* X, Dtype* X_acts) {
 		CUDA_KERNEL_LOOP(index, nthreads) {
@@ -36,7 +41,7 @@ namespace caffe {
 				X_acts[index] = sigmoid(X[index]);
 			}
 			else {
-				X_acts[index] = tanh(X[index]);
+				X_acts[index] = relu(X[index]);
 			}
 		}
 	}
@@ -56,8 +61,7 @@ namespace caffe {
 			const Dtype c_prev = C_prev[index];
 			const Dtype c = f * c_prev + i * g;
 			C[index] = c;
-			const Dtype tanh_c = tanh(c);
-			H[index] = o * tanh_c;
+			H[index] = o * c;
 		}
 	}
 
@@ -98,7 +102,6 @@ namespace caffe {
 			const Dtype g = X_offset[3 * dim + d];
 			const Dtype c_prev = C_prev[index];
 			const Dtype c = C[index];
-			const Dtype tanh_c = tanh(c);
 			Dtype* c_prev_diff = C_prev_diff + index;
 			Dtype* X_diff_offset = X_diff + 4 * dim * n;
 			Dtype* i_diff = X_diff_offset + d;
@@ -106,11 +109,11 @@ namespace caffe {
 			Dtype* o_diff = X_diff_offset + 2 * dim + d;
 			Dtype* g_diff = X_diff_offset + 3 * dim + d;
 			const Dtype c_term_diff =
-				C_diff[index] + H_diff[index] * o * (1 - tanh_c * tanh_c);
+				C_diff[index] + H_diff[index] * o;
 			*c_prev_diff = c_term_diff * f;
 			*i_diff = c_term_diff * g;
 			*f_diff = c_term_diff * c_prev;
-			*o_diff = H_diff[index] * tanh_c;
+			*o_diff = H_diff[index] * c;
 			*g_diff = c_term_diff * i;
 		}
 	}
@@ -126,7 +129,7 @@ namespace caffe {
 				X_diff[index] = X_acts_diff[index] * X_act * (Dtype(1) - X_act);
 			}
 			else {
-				X_diff[index] = X_acts_diff[index] * (Dtype(1) - X_act * X_act);
+				X_diff[index] = X_acts[index] > 0 ? X_acts_diff[index] : 0;
 			}
 		}
 	}
