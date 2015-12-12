@@ -63,10 +63,10 @@ void NormalizeLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     scale = this->blobs_[0]->gpu_data();
   }
   const Dtype* sum_channel_multiplier = sum_channel_multiplier_.gpu_data();
-  int num = bottom[0]->num();
+  int num = bottom[0]->shape(0);
   int dim = bottom[0]->count() / num;
-  int spatial_dim = bottom[0]->height() * bottom[0]->width();
-  int channels = bottom[0]->channels();
+  int spatial_dim = bottom[0]->count(2);
+  int channels = bottom[0]->shape(1);
   for (int n = 0; n < num; ++n) {
     caffe_gpu_powx<Dtype>(dim, bottom_data, Dtype(2), buffer_data);
     if (across_spatial_) {
@@ -125,10 +125,10 @@ void NormalizeLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   const Dtype* sum_channel_multiplier = sum_channel_multiplier_.gpu_data();
   const Dtype* sum_spatial_multiplier = sum_spatial_multiplier_.gpu_data();
   int count = top[0]->count();
-  int num = top[0]->num();
+  int num = top[0]->shape(0);
   int dim = count / num;
-  int spatial_dim = top[0]->height() * top[0]->width();
-  int channels = top[0]->channels();
+  int spatial_dim = top[0]->count(2);
+  int channels = top[0]->shape(1);
 
   // Propagate to param
   if (this->param_propagate_down_[0]) {

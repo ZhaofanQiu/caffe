@@ -13,23 +13,23 @@ void NormalizeLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   CHECK_GE(bottom[0]->num_axes(), 2)
       << "Number of axes of bottom blob must be >=2.";
-  buffer_.Reshape(1, bottom[0]->channels(),
-                   bottom[0]->height(), bottom[0]->width());
-  buffer_channel_.Reshape(1, bottom[0]->channels(), 1, 1);
-  buffer_spatial_.Reshape(1, 1, bottom[0]->height(), bottom[0]->width());
+
+  buffer_.Reshape(vector<int>(1, bottom[0]->count(1)));
+  buffer_channel_.Reshape(vector<int>(1, bottom[0]->shape(1)));
+  buffer_spatial_.Reshape(vector<int>(1, bottom[0]->count(2)));
   NormalizeParameter norm_param = this->layer_param().norm_param();
   across_spatial_ = norm_param.across_spatial();
   if (across_spatial_) {
-    norm_.Reshape(bottom[0]->num(), 1, 1, 1);
+    norm_.Reshape(vector<int>(1, bottom[0]->shape(1)));
   } else {
-    norm_.Reshape(bottom[0]->num(), 1, bottom[0]->height(), bottom[0]->width());
+    norm_.Reshape(vector<int>(1, bottom[0]->count() / bottom[0]->shape(1)));
   }
   eps_ = norm_param.eps();
-  int channels = bottom[0]->channels();
-  int spatial_dim = bottom[0]->width() * bottom[0]->height();
-  sum_channel_multiplier_.Reshape(1, channels, 1, 1);
+  int channels = bottom[0]->shape(1);
+  int spatial_dim = bottom[0]->count(2);
+  sum_channel_multiplier_.Reshape(vector<int>(1, channels));
   caffe_set(channels, Dtype(1), sum_channel_multiplier_.mutable_cpu_data());
-  sum_spatial_multiplier_.Reshape(1, 1, bottom[0]->height(), bottom[0]->width());
+  sum_spatial_multiplier_.Reshape(vector<int>(1, spatial_dim));
   caffe_set(spatial_dim, Dtype(1), sum_spatial_multiplier_.mutable_cpu_data());
   channel_shared_ = norm_param.channel_shared();
   if (this->blobs_.size() > 0) {
@@ -74,16 +74,15 @@ void NormalizeLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   CHECK_GE(bottom[0]->num_axes(), 2)
       << "Number of axes of bottom blob must be >=2.";
   top[0]->ReshapeLike(*bottom[0]);
-  buffer_.Reshape(1, bottom[0]->channels(),
-                   bottom[0]->height(), bottom[0]->width());
+  buffer_.Reshape(vector<int>(1, bottom[0]->count(1)));
   if (!across_spatial_) {
-    norm_.Reshape(bottom[0]->num(), 1, bottom[0]->height(), bottom[0]->width());
+    norm_.Reshape(vector<int>(1, bottom[0]->count() / bottom[0]->shape(1)));
   }
-  int spatial_dim = bottom[0]->height() * bottom[0]->width();
+  int spatial_dim = bottom[0]->count(2);
   if (spatial_dim != sum_spatial_multiplier_.count()) {
-    sum_spatial_multiplier_.Reshape(1, 1, bottom[0]->height(), bottom[0]->width());
+    sum_spatial_multiplier_.Reshape(vector<int>(1, bottom[0]->count(2)));
     caffe_set(spatial_dim, Dtype(1), sum_spatial_multiplier_.mutable_cpu_data());
-    buffer_spatial_.Reshape(1, 1, bottom[0]->height(), bottom[0]->width());
+	buffer_spatial_.Reshape(vector<int>(1, bottom[0]->count() / bottom[0]->shape(1)));
   }
 }
 
@@ -99,10 +98,10 @@ void NormalizeLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   caffe_set<Dtype>(norm_.count(), Dtype(eps_), norm_data);
   const Dtype* sum_channel_multiplier = sum_channel_multiplier_.cpu_data();
   const Dtype* sum_spatial_multiplier = sum_spatial_multiplier_.cpu_data();
-  int num = bottom[0]->num();
+  int num = bottom[0]->shape(0);
   int dim = bottom[0]->count() / num;
-  int spatial_dim = bottom[0]->height() * bottom[0]->width();
-  int channels = bottom[0]->channels();
+  int spatial_dim = bottom[0]->count(2);
+  int channels = bottom[0]->shape(1);
   for (int n = 0; n < num; ++n) {
     caffe_sqr<Dtype>(dim, bottom_data, buffer_data);
     if (across_spatial_) {
@@ -149,10 +148,10 @@ void NormalizeLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   const Dtype* sum_channel_multiplier = sum_channel_multiplier_.cpu_data();
   const Dtype* sum_spatial_multiplier = sum_spatial_multiplier_.cpu_data();
   int count = top[0]->count();
-  int num = top[0]->num();
+  int num = top[0]->shape(0);
   int dim = count / num;
-  int spatial_dim = top[0]->height() * top[0]->width();
-  int channels = top[0]->channels();
+  int spatial_dim = top[0]->count(2);
+  int channels = top[0]->shape(1);
   
   // Propagate to param
   if (this->param_propagate_down_[0]) {

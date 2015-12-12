@@ -565,7 +565,7 @@ int main(int argc, char** argv){
 	caffe::CropLayerTest<float> test4;
 	test4.StartTest();
 	LOG(INFO) << "End test CropLayer";
-	caffe::VideoSwitchLayerTest<float> test5;
+	caffe::VideoSwitchLayerTest<float> test5;t
 	test5.StartTest();
 	LOG(INFO) << "End test VideoSwitchLayer";
 	caffe::LSTMUnitLayerTest<float> test6;

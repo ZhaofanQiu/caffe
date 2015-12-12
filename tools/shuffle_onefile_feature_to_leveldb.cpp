@@ -32,6 +32,8 @@ using std::string;
 #define HEIGHT 7 
 #define WIDTH 7 
 
+#define SAMPLES 333000
+
 float buf[CHANNELS * LENGTH * HEIGHT * WIDTH];
 
 bool ReadOnefileFeatureToVolumeDatum(FILE* file, VolumeDatum* datum)
@@ -132,9 +134,20 @@ int main(int argc, char** argv) {
 	int channel;
 	str2int>>channel;*/
 
-	int line_id = 0;
-	while (!feof(file))
+	std::vector<long long> links(SAMPLES, 0);
+	for (int i = 0; i < SAMPLES; ++i)
 	{
+		links[i] = (long long)(4 * (5 + CHANNELS * LENGTH * HEIGHT * WIDTH)) * i;
+	}
+
+	LOG(INFO) << "Shuffling data";
+	std::random_shuffle(links.begin(), links.end());
+
+	int line_id = 0;
+	for (int i = 0; i < links.size(); ++i)
+	{
+		_fseeki64(file, links[i], SEEK_SET);
+
 		if (!ReadOnefileFeatureToVolumeDatum(file, &datum))
 		{
 			continue;

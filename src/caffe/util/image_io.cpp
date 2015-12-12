@@ -191,8 +191,11 @@ bool ReadImageSequenceToVolumeDatum(const char* img_dir, const int start_frm, co
 		sprintf(fn_im, "%s/%06d.jpg", img_dir, i);
 		if (height > 0 && width > 0) {
 		    img_origin = cv::imread(fn_im, CV_LOAD_IMAGE_COLOR);
-		    if (!img_origin.data)
-		    	return false;
+			if (!img_origin.data)
+			{
+				LOG(INFO) << "Could not open or find file " << fn_im;
+				return false;
+			}
 		    cv::resize(img_origin, img, cv::Size(width, height));
 		    img_origin.release();
 		} else {
@@ -200,7 +203,7 @@ bool ReadImageSequenceToVolumeDatum(const char* img_dir, const int start_frm, co
 		}
 
 		if (!img.data){
-			LOG(ERROR) << "Could not open or find file " << fn_im;
+			LOG(INFO) << "Could not open or find file " << fn_im;
 			return false;
 		}
 

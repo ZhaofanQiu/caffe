@@ -32,9 +32,11 @@ using std::string;
 #define HEIGHT 7 
 #define WIDTH 7 
 
+#define SAMPLES 333000
+
 float buf[CHANNELS * LENGTH * HEIGHT * WIDTH];
 
-bool ReadOnefileFeatureToVolumeDatum(FILE* file, VolumeDatum* datum)
+bool ReadOnefileFeatureToVolumeDatum(FILE* file, int label, VolumeDatum* datum)
 {
 	if (file == NULL)
 	{
@@ -67,7 +69,7 @@ bool ReadOnefileFeatureToVolumeDatum(FILE* file, VolumeDatum* datum)
 		datum->set_length(dims[2]);
 		datum->set_height(dims[3]);
 		datum->set_width(dims[4]);
-		datum->set_label(0);
+		datum->set_label(label);
 	}
 	else
 	{
@@ -79,7 +81,7 @@ bool ReadOnefileFeatureToVolumeDatum(FILE* file, VolumeDatum* datum)
 		datum->set_length(1);
 		datum->set_height(dims[2]);
 		datum->set_width(dims[3]);
-		datum->set_label(0);
+		datum->set_label(label);
 	}
 
 
@@ -99,27 +101,35 @@ bool ReadOnefileFeatureToVolumeDatum(FILE* file, VolumeDatum* datum)
 
 int main(int argc, char** argv) {
 	::google::InitGoogleLogging(argv[0]);
-	if (argc != 3) {
+	if (argc != 4) {
 		printf("Convert a set of features to the leveldb format used\n"
 			"as input for Caffe.\n"
 			"Usage:\n"
-			"    convert_feature onefile DB_NAME \n");
+			"    convert_feature onefile label_list DB_NAME \n");
 		return 1;
 	}
 	FILE* file;
 	file = fopen(argv[1], "rb");
+
+	FILE* file_label;
+	file_label = fopen(argv[2], "r");
+	vector<int> labels(SAMPLES);
+	for (int i = 0; i < SAMPLES; ++i)
+	{
+		fscanf(file_label, "%d", &labels[i]);
+	}
+	fclose(file_label);
 
 	leveldb::DB* db;
 	leveldb::Options options;
 	options.error_if_exists = true;
 	options.create_if_missing = true;
 	options.write_buffer_size = 268435456;
-	LOG(INFO) << "Opening leveldb " << argv[2];
+	LOG(INFO) << "Opening leveldb " << argv[3];
 	leveldb::Status status = leveldb::DB::Open(
-		options, argv[2], &db);
+		options, argv[3], &db);
 	CHECK(status.ok()) << "Failed to open leveldb " << argv[2];
 
-	string root_folder(argv[1]);
 	VolumeDatum datum;
 	int count = 0;
 	const int kMaxKeyLength = 256;
@@ -132,10 +142,24 @@ int main(int argc, char** argv) {
 	int channel;
 	str2int>>channel;*/
 
-	int line_id = 0;
-	while (!feof(file))
+	std::vector<long long> links(SAMPLES, 0);
+	std::vector<long long> idx(SAMPLES);
+	for (int i = 0; i < SAMPLES; ++i)
 	{
-		if (!ReadOnefileFeatureToVolumeDatum(file, &datum))
+		links[i] = (long long)(4 * (5 + CHANNELS * LENGTH * HEIGHT * WIDTH)) * i;
+		idx[i] = i;
+	}
+
+	LOG(INFO) << "Shuffling data";
+	std::random_shuffle(idx.begin(), idx.end());
+
+	int line_id = 0;
+	for (int i = 0; i < links.size(); ++i)
+	{
+		int id = idx[i];
+		_fseeki64(file, links[id], SEEK_SET);
+
+		if (!ReadOnefileFeatureToVolumeDatum(file, labels[id], &datum))
 		{
 			continue;
 		}
