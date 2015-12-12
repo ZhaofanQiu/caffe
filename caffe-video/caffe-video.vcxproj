@@ -302,7 +302,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)../bin</OutDir>
-    <TargetName>caffe-video-debug</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -327,12 +327,12 @@
       <PreprocessorDefinitions>GOOGLE_GLOG_DLL_DECL=;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>$(BOOST_1_59_0);../include;../src;../3rdparty/include;../3rdparty/include/openblas;../3rdparty/include/hdf5;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include;../src;../3rdparty/include;../3rdparty/include/openblas;../3rdparty/include/hdf5;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(BOOST_1_59_0)\stage\lib;../3rdparty/lib;../3rdparty/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../3rdparty/lib;../3rdparty/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Shlwapi.lib;cudart.lib;cublas.lib;curand.lib;cublas_device.lib;opencv_world300.lib;leveldb.lib;cuda.lib;lmdb.lib;cudnn.lib;libopenblas.dll.a;gflags.lib;libglog_static.lib;libprotobuf.lib;libszip.lib;libzlib.lib;libhdf5.lib;libhdf5_hl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
