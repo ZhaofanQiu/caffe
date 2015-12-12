@@ -322,8 +322,9 @@ namespace caffe {
 			read_time += timer.MicroSeconds();
 
 			timer.Start();
-			int offset = batch->data_.offset(vector<int>(1, item_id));
-			Dtype* top_data = prefetch_data + offset;
+			//int offset = batch->data_.offset(vector<int>(1, item_id));
+			//Dtype* top_data = prefetch_data + offset;
+			Dtype* top_data = prefetch_data;
 			//LOG(INFO) << "--> " << item_id;
 			//LOG(INFO) << "label " << datum.label();
 			const string& data = datum.data();
@@ -360,6 +361,7 @@ namespace caffe {
 					}
 				}
 				else {
+
 					// Normal copy
 					for (int c = 0; c < channels; ++c) {
 						for (int l = 0; l < length; ++l) {
@@ -370,6 +372,8 @@ namespace caffe {
 									int data_index = ((c * length + l) * height + h + h_off) * width + w + w_off;
 									Dtype datum_element =
 										static_cast<Dtype>(static_cast<uint8_t>(data[data_index]));
+
+
 									top_data[top_index] = (datum_element - mean[data_index]) * scale;
 									if (show_data)
 										data_buffer[((c * length + l) * crop_size + h)

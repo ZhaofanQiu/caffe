@@ -550,9 +550,9 @@ namespace caffe{
 int main(int argc, char** argv){
 	FLAGS_logtostderr = 1;
 	//caffe::Caffe::set_mode(caffe::Caffe::CPU);
-	/*
 	caffe::Caffe::set_mode(caffe::Caffe::GPU);
-	caffe::Caffe::SetDevice(1);
+	caffe::Caffe::SetDevice(10);
+	/*
 	caffe::Convolution3DLayerTest<float> test1;
 	test1.StartTest();
 	LOG(INFO) << "End test Convolution3DLayer";
@@ -581,8 +581,8 @@ int main(int argc, char** argv){
 	caffe::MapLSTMUnitLayerTest<float> test9;
 	test9.StartTest();
 	LOG(INFO) << "End test MapLSTMUnitLayer";
-	caffe::MapLSTMLayerTest<float> test10;
-	test10.StartTest();
-	LOG(INFO) << "End test MapLSTMLayer";
+	//caffe::MapLSTMLayerTest<float> test10;
+	//test10.StartTest();
+	//LOG(INFO) << "End test MapLSTMLayer";
 	return 0;
 }
