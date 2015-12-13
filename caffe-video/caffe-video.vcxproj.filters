@@ -34,6 +34,15 @@
     <Filter Include="Source Files\test">
       <UniqueIdentifier>{3ba9c14c-2530-4689-a1c9-402014a52f2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\layers">
+      <UniqueIdentifier>{cb5947c7-a925-4324-a175-82bfb1ec7c95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\video">
+      <UniqueIdentifier>{dc47b019-6889-4ad1-8919-869110a6ca94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\video">
+      <UniqueIdentifier>{57f55668-b8a8-4fb2-83d6-bc27a9dd0b4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\caffe\blob.cpp">
@@ -273,26 +282,11 @@
     <ClCompile Include="..\src\caffe\proto\caffe.pb.cc">
       <Filter>Source Files\proto</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\video_data_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\caffe\util\image_io.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\base_conv3D_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\caffe\util\vol2col.cpp">
       <Filter>Source Files\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\conv3d_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\deconv3d_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\pooling3d_layer.cpp">
-      <Filter>Source Files\layers</Filter>
     </ClCompile>
     <ClCompile Include="..\src\gtest\gtest-all.cpp">
       <Filter>Source Files\test</Filter>
@@ -303,62 +297,77 @@
     <ClCompile Include="..\src\caffe\layers\tile_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\volume_data_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\crop_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\video_switch_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\lstm_unit_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\grid_lstm_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\normalize_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\unpooling_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\parse_evaluate_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\parse_output_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\extract_frame_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\random_fusion_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\random_loss_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\map_lstm_unit_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\map_lstm_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\bin_data_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\l1_loss_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\onefile_data_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\encode_machine_layer.cpp">
-      <Filter>Source Files\layers</Filter>
-    </ClCompile>
     <ClCompile Include="..\tools\caffe-light.cpp">
       <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\base_conv3d_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\conv3d_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\deconv3d_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\video_data_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\pooling3d_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\video_switch_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\grid_lstm_unit_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\grid_lstm_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\normalize_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\unpooling_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\parse_evaluate_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\extract_frame_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\random_fusion_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\encode_machine_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\l1_loss_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\bin_data_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\map_lstm_unit_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\map_lstm_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\parse_output_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\onefile_data_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\volume_data_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\crop_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\video_common.cpp">
+      <Filter>Source Files\video</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -488,59 +497,56 @@
     <CudaCompile Include="..\src\caffe\util\vol2col.cu">
       <Filter>Source Files\util</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\conv3d_layer.cu">
-      <Filter>Source Files\layers</Filter>
-    </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\deconv3d_layer.cu">
-      <Filter>Source Files\layers</Filter>
-    </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\pooling3d_layer.cu">
-      <Filter>Source Files\layers</Filter>
-    </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\embed_layer.cu">
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu">
       <Filter>Source Files\layers</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\crop_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\conv3d_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\video_switch_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\deconv3d_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\lstm_unit_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\pooling3d_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\normalize_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\video_switch_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\unpooling_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\grid_lstm_unit_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\extract_frame_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\grid_lstm_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\random_fusion_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\normalize_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\grid_lstm_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\unpooling_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\random_loss_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\extract_frame_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\map_lstm_unit_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\random_fusion_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\map_lstm_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\encode_machine_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\l1_loss_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\l1_loss_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\encode_machine_layer.cu">
-      <Filter>Source Files\layers</Filter>
+    <CudaCompile Include="..\src\caffe\video\map_lstm_unit_layer.cu">
+      <Filter>Source Files\video</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\video\map_lstm_layer.cu">
+      <Filter>Source Files\video</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\video\crop_layer.cu">
+      <Filter>Source Files\video</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
@@ -554,12 +560,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\common.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\common_layers.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\data_layers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\data_reader.hpp">
@@ -580,13 +580,7 @@
     <ClInclude Include="..\include\caffe\layer_factory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\caffe\loss_layers.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\caffe\net.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\neuron_layers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\parallel.hpp">
@@ -599,9 +593,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\syncedmem.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\vision_layers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\util\benchmark.hpp">
@@ -649,9 +640,6 @@
     <ClInclude Include="..\include\caffe\util\upgrade_proto.hpp">
       <Filter>Header Files\util</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\caffe\video_layers.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\caffe\util\image_io.hpp">
       <Filter>Header Files\util</Filter>
     </ClInclude>
@@ -669,6 +657,261 @@
     </ClInclude>
     <ClInclude Include="..\include\caffe\util\gpu_util.cuh">
       <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\absval_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\accuracy_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\argmax_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\base_conv_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\base_data_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\batch_norm_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\batch_reindex_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\bnll_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\concat_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\contrastive_loss_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\conv_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\cudnn_conv_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\cudnn_lcn_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\cudnn_lrn_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\cudnn_pooling_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\cudnn_relu_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\cudnn_sigmoid_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\cudnn_softmax_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\cudnn_tanh_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\data_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\deconv_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\dropout_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\dummy_data_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\eltwise_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\embed_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\euclidean_loss_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\exp_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\filter_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\flatten_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\hdf5_data_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\hdf5_output_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\hinge_loss_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\im2col_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\image_data_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\infogain_loss_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\inner_product_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\log_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\loss_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\lrn_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\memory_data_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\multinomial_logistic_loss_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\mvn_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\neuron_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\pooling_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\power_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\prelu_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\python_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\reduction_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\relu_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\reshape_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\sigmoid_cross_entropy_loss_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\sigmoid_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\silence_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\slice_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\softmax_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\softmax_loss_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\split_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\spp_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\tanh_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\threshold_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\tile_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\window_data_layer.hpp">
+      <Filter>Header Files\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\video_common.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\video_data_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\base_conv3d_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\conv3d_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\deconv3d_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\pooling3d_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\video_switch_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\grid_lstm_unit_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\grid_lstm_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\normalize_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\unpooling_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\parse_evaluate_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\extract_frame_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\random_fusion_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\encode_machine_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\l1_loss_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\bin_data_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\map_lstm_unit_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\map_lstm_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\parse_output_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\onefile_data_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\volume_data_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\crop_layer.hpp">
+      <Filter>Header Files\video</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

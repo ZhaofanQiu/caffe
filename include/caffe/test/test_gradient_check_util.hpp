@@ -124,7 +124,6 @@ void GradientChecker<Dtype>::CheckGradientSingle(Layer<Dtype>* layer,
         computed_gradient_blobs[blob_id]->mutable_cpu_data();
     caffe_copy(count, diff, computed_gradients);
   }
-
   // Compute derivative of top w.r.t. each bottom and parameter input using
   // finite differencing.
   // LOG(ERROR) << "Checking " << blobs_to_check.size() << " blobs.";
