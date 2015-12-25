@@ -30,11 +30,15 @@
     <ClCompile Include="..\src\caffe\layers\argmax_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\base_conv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\base_data_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\batch_norm_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\batch_reindex_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\bnll_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\concat_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\contrastive_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\conv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_conv_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\cudnn_lcn_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\cudnn_lrn_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_pooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_relu_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\cudnn_sigmoid_layer.cpp" />
@@ -87,6 +91,12 @@
     <ClCompile Include="..\src\caffe\parallel.cpp" />
     <ClCompile Include="..\src\caffe\proto\caffe.pb.cc" />
     <ClCompile Include="..\src\caffe\solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adagrad_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adam_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\nesterov_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\rmsprop_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp" />
     <ClCompile Include="..\src\caffe\syncedmem.cpp" />
     <ClCompile Include="..\src\caffe\util\benchmark.cpp" />
     <ClCompile Include="..\src\caffe\util\blocking_queue.cpp" />
@@ -107,8 +117,9 @@
     <ClCompile Include="..\src\caffe\video\conv3d_layer.cpp" />
     <ClCompile Include="..\src\caffe\video\crop_layer.cpp" />
     <ClCompile Include="..\src\caffe\video\deconv3d_layer.cpp" />
-    <ClCompile Include="..\src\caffe\video\encode_machine_layer.cpp" />
     <ClCompile Include="..\src\caffe\video\extract_frame_layer.cpp" />
+    <ClCompile Include="..\src\caffe\video\gaussion_loss_layer.cpp" />
+    <ClCompile Include="..\src\caffe\video\gaussion_sample_layer.cpp" />
     <ClCompile Include="..\src\caffe\video\grid_lstm_layer.cpp" />
     <ClCompile Include="..\src\caffe\video\grid_lstm_unit_layer.cpp" />
     <ClCompile Include="..\src\caffe\video\l1_loss_layer.cpp" />
@@ -126,18 +137,22 @@
     <ClCompile Include="..\src\caffe\video\video_switch_layer.cpp" />
     <ClCompile Include="..\src\caffe\video\volume_data_layer.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\tools\caffe-light.cpp" />
+    <ClCompile Include="..\tools\extract_grad_encode_feature.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
       <FileType>Document</FileType>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\base_data_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\batch_norm_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\batch_reindex_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\bnll_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\concat_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\contrastive_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\conv_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_conv_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\cudnn_lcn_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\cudnn_lrn_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_pooling_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_relu_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_sigmoid_layer.cu" />
@@ -178,8 +193,9 @@
     <CudaCompile Include="..\src\caffe\video\conv3d_layer.cu" />
     <CudaCompile Include="..\src\caffe\video\crop_layer.cu" />
     <CudaCompile Include="..\src\caffe\video\deconv3d_layer.cu" />
-    <CudaCompile Include="..\src\caffe\video\encode_machine_layer.cu" />
     <CudaCompile Include="..\src\caffe\video\extract_frame_layer.cu" />
+    <CudaCompile Include="..\src\caffe\video\gaussion_loss_layer.cu" />
+    <CudaCompile Include="..\src\caffe\video\gaussion_sample_layer.cu" />
     <CudaCompile Include="..\src\caffe\video\grid_lstm_layer.cu" />
     <CudaCompile Include="..\src\caffe\video\grid_lstm_unit_layer.cu" />
     <CudaCompile Include="..\src\caffe\video\l1_loss_layer.cu" />
@@ -266,7 +282,9 @@
     <ClInclude Include="..\include\caffe\net.hpp" />
     <ClInclude Include="..\include\caffe\parallel.hpp" />
     <ClInclude Include="..\include\caffe\python_layer.hpp" />
+    <ClInclude Include="..\include\caffe\sgd_solvers.hpp" />
     <ClInclude Include="..\include\caffe\solver.hpp" />
+    <ClInclude Include="..\include\caffe\solver_factory.hpp" />
     <ClInclude Include="..\include\caffe\syncedmem.hpp" />
     <ClInclude Include="..\include\caffe\test\test_caffe_main.hpp" />
     <ClInclude Include="..\include\caffe\test\test_gradient_check_util.hpp" />
@@ -293,8 +311,9 @@
     <ClInclude Include="..\include\caffe\video\conv3d_layer.hpp" />
     <ClInclude Include="..\include\caffe\video\crop_layer.hpp" />
     <ClInclude Include="..\include\caffe\video\deconv3d_layer.hpp" />
-    <ClInclude Include="..\include\caffe\video\encode_machine_layer.hpp" />
     <ClInclude Include="..\include\caffe\video\extract_frame_layer.hpp" />
+    <ClInclude Include="..\include\caffe\video\gaussion_loss_layer.hpp" />
+    <ClInclude Include="..\include\caffe\video\gaussion_sample_layer.hpp" />
     <ClInclude Include="..\include\caffe\video\grid_lstm_layer.hpp" />
     <ClInclude Include="..\include\caffe\video\grid_lstm_unit_layer.hpp" />
     <ClInclude Include="..\include\caffe\video\l1_loss_layer.hpp" />
@@ -380,7 +399,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)../bin</OutDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>extract_grad_encode_feature</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

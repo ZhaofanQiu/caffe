@@ -415,7 +415,6 @@ message LayerParameter {
   optional ParseEvaluateParameter parse_evaluate_param = 147;
   optional ExtractFrameParameter extract_frame_param = 148;
   optional RandomFusionParameter random_fusion_param = 149;
-  optional EncodeMachineParameter encode_machine_param = 150;
 }
 
 // Message that stores parameters used by RandomFusionLayer
@@ -578,19 +577,6 @@ message VideoDataParameter {
   optional bool use_label = 15 [default = true];
   optional bool use_temporal_jitter = 16 [default = false];
   optional float mean_value = 17 [default = 0];  
-}
-
-
-// Message that stores parameters used by EncodeMachineParameter
-message EncodeMachineParameter {
-  optional string net = 1;
-  optional int32 encode_begin = 2;
-  optional int32 encode_end = 3;
-  optional int32 decode_begin = 4;
-  optional int32 decode_end = 5;
-  optional float loss_weight = 6 [default = 1];
-  optional int32 cd_k = 7 [default = 1];
-  optional int32 sample_k = 8 [default = 1];  
 }
 
 // Message that stores parameters used to apply transformation

@@ -1,6 +1,6 @@
 
 // Added by Zhaofan
-// #define CPU_ONLY
+#define CPU_ONLY
 
 #include <boost/thread.hpp>
 #include <exception>

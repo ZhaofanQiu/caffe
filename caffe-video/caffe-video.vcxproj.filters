@@ -43,6 +43,9 @@
     <Filter Include="Source Files\video">
       <UniqueIdentifier>{57f55668-b8a8-4fb2-83d6-bc27a9dd0b4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\solvers">
+      <UniqueIdentifier>{77c32c65-7106-4893-a447-67a461492b2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\caffe\blob.cpp">
@@ -297,9 +300,6 @@
     <ClCompile Include="..\src\caffe\layers\tile_layer.cpp">
       <Filter>Source Files\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\caffe-light.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\caffe\video\base_conv3d_layer.cpp">
       <Filter>Source Files\video</Filter>
     </ClCompile>
@@ -339,9 +339,6 @@
     <ClCompile Include="..\src\caffe\video\random_fusion_layer.cpp">
       <Filter>Source Files\video</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\video\encode_machine_layer.cpp">
-      <Filter>Source Files\video</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\caffe\video\l1_loss_layer.cpp">
       <Filter>Source Files\video</Filter>
     </ClCompile>
@@ -368,6 +365,45 @@
     </ClCompile>
     <ClCompile Include="..\src\caffe\video\video_common.cpp">
       <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp">
+      <Filter>Source Files\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\adagrad_solver.cpp">
+      <Filter>Source Files\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\adam_solver.cpp">
+      <Filter>Source Files\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\nesterov_solver.cpp">
+      <Filter>Source Files\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\rmsprop_solver.cpp">
+      <Filter>Source Files\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
+      <Filter>Source Files\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\batch_norm_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\batch_reindex_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\cudnn_lcn_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\cudnn_lrn_layer.cpp">
+      <Filter>Source Files\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\gaussion_sample_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\video\gaussion_loss_layer.cpp">
+      <Filter>Source Files\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\extract_grad_encode_feature.cpp">
+      <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -533,9 +569,6 @@
     <CudaCompile Include="..\src\caffe\video\random_fusion_layer.cu">
       <Filter>Source Files\video</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\video\encode_machine_layer.cu">
-      <Filter>Source Files\video</Filter>
-    </CudaCompile>
     <CudaCompile Include="..\src\caffe\video\l1_loss_layer.cu">
       <Filter>Source Files\video</Filter>
     </CudaCompile>
@@ -546,6 +579,24 @@
       <Filter>Source Files\video</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\video\crop_layer.cu">
+      <Filter>Source Files\video</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\batch_norm_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\batch_reindex_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\cudnn_lcn_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\cudnn_lrn_layer.cu">
+      <Filter>Source Files\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\video\gaussion_sample_layer.cu">
+      <Filter>Source Files\video</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\video\gaussion_loss_layer.cu">
       <Filter>Source Files\video</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -886,9 +937,6 @@
     <ClInclude Include="..\include\caffe\video\random_fusion_layer.hpp">
       <Filter>Header Files\video</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\caffe\video\encode_machine_layer.hpp">
-      <Filter>Header Files\video</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\caffe\video\l1_loss_layer.hpp">
       <Filter>Header Files\video</Filter>
     </ClInclude>
@@ -911,6 +959,18 @@
       <Filter>Header Files\video</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\video\crop_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\sgd_solvers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\solver_factory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\gaussion_sample_layer.hpp">
+      <Filter>Header Files\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\video\gaussion_loss_layer.hpp">
       <Filter>Header Files\video</Filter>
     </ClInclude>
   </ItemGroup>
