@@ -1,0 +1,181 @@
+/*
+*
+*  Copyright (c) 2015, Facebook, Inc. All rights reserved.
+*
+*  Licensed under the Creative Commons Attribution-NonCommercial 3.0
+*  License (the "License"). You may obtain a copy of the License at
+*  https://creativecommons.org/licenses/by-nc/3.0/.
+*  Unless required by applicable law or agreed to in writing, software
+*  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+*  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+*  License for the specific language governing permissions and limitations
+*  under the License.
+*
+*
+*/
+
+#include <stdio.h>  // for snprintf
+#include <cuda_runtime.h>
+#include <google/protobuf/text_format.h>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+
+#include "caffe/blob.hpp"
+#include "caffe/common.hpp"
+#include "caffe/net.hpp"
+#include "caffe/proto/caffe.pb.h"
+#include "caffe/util/io.hpp"
+#include "caffe/util/image_io.hpp"
+
+#define uint unsigned int
+
+using namespace caffe;  // NOLINT(build/namespaces)
+
+template<typename Dtype>
+int feature_extraction_pipeline(int argc, char** argv);
+
+int main(int argc, char** argv) {
+	return feature_extraction_pipeline<float>(argc, argv);
+}
+
+template<typename Dtype>
+bool append_blob_to_binary(FILE* f, Blob<Dtype>* blob, int num_index)
+{
+	float *buff;
+	int n;
+	if (f == NULL)
+		return false;
+
+	if (num_index<0){
+		n = blob->shape(0);
+		buff = blob->mutable_cpu_data();
+	}
+	else{
+		n = 1;
+		buff = blob->mutable_cpu_data() + blob->offset(vector<int>(1, num_index));
+	}
+	int num_axes_ = blob->num_axes();
+	fwrite(&num_axes_, sizeof(int), 1, f);
+	fwrite(&n, sizeof(int), 1, f);
+	for (int i = 1; i < blob->num_axes(); i++)
+	{
+		int shape_i_ = blob->shape(i);
+		fwrite(&shape_i_, sizeof(int), 1, f);
+	}
+	fwrite(buff, sizeof(Dtype), blob->count(1) * n, f);
+	return true;
+}
+
+template<typename Dtype>
+bool append_grad_to_binary(FILE* f, Blob<Dtype>* blob, int num_index)
+{
+	float *buff;
+	int n;
+	if (f == NULL)
+		return false;
+
+	if (num_index<0){
+		n = blob->shape(0);
+		buff = blob->mutable_cpu_diff();
+	}
+	else{
+		n = 1;
+		buff = blob->mutable_cpu_diff() + blob->offset(vector<int>(1, num_index));
+	}
+	int num_axes_ = blob->num_axes();
+	fwrite(&num_axes_, sizeof(int), 1, f);
+	fwrite(&n, sizeof(int), 1, f);
+	for (int i = 1; i < blob->num_axes(); i++)
+	{
+		int shape_i_ = blob->shape(i);
+		fwrite(&shape_i_, sizeof(int), 1, f);
+	}
+	fwrite(buff, sizeof(Dtype), blob->count(1) * n, f);
+	return true;
+}
+
+template<typename Dtype>
+int feature_extraction_pipeline(int argc, char** argv) {
+	char* net_proto = argv[1];
+	char* pretrained_model = argv[2];
+	int device_id = atoi(argv[3]);
+	uint batch_size = atoi(argv[4]);
+	uint num_mini_batches = atoi(argv[5]);
+	char* fn_feat = argv[6];
+
+	if (device_id >= 0){
+		Caffe::set_mode(Caffe::GPU);
+		Caffe::SetDevice(device_id);
+		LOG(ERROR) << "Using GPU #" << device_id;
+	}
+	else{
+		Caffe::set_mode(Caffe::CPU);
+		LOG(ERROR) << "Using CPU";
+	}
+
+	boost::shared_ptr<Net<Dtype> > feature_extraction_net(
+		new Net<Dtype>(string(net_proto), caffe::TEST));
+	feature_extraction_net->CopyTrainedLayersFrom(string(pretrained_model));
+
+	for (int i = 7; i<argc; i++){
+		CHECK(feature_extraction_net->has_blob(string(argv[i])))
+			<< "Unknown feature blob name " << string(argv[i])
+			<< " in the network " << string(net_proto);
+	}
+
+	LOG(ERROR) << "Extracting features for " << num_mini_batches << " batches";
+
+	
+	int c = 0;
+
+	vector<Blob<float>*> input_vec;
+	int image_index = 0;
+
+	vector<string> outfile = vector<string>(argc - 7, "");
+	vector<string> outgradfile = vector<string>(argc - 7, "");
+	vector<FILE*> fps = vector<FILE*>(argc - 7, NULL);
+	vector<FILE*> fpsgrad = vector<FILE*>(argc - 7, NULL);
+	for (int k = 7; k < argc; k++)
+	{
+		outfile[k - 7] = fn_feat + string(".") + string(argv[k]);
+		outgradfile[k - 7] = fn_feat + string(".") + string(argv[k]) + string("_grad");
+		fps[k - 7] = fopen(outfile[k - 7].c_str(), "wb");
+		fpsgrad[k - 7] = fopen(outgradfile[k - 7].c_str(), "wb");
+	}
+		
+	for (int batch_index = 0; batch_index < num_mini_batches; ++batch_index) {
+		feature_extraction_net->ClearParamDiffs();
+		feature_extraction_net->Forward(input_vec);
+		feature_extraction_net->Backward();
+
+		for (int k = 7; k<argc; k++){
+			const boost::shared_ptr<Blob<Dtype> > feature_blob = feature_extraction_net
+				->blob_by_name(string(argv[k]));
+
+			for (int n = 0; n < batch_size; n++)
+				append_blob_to_binary(fps[k - 7], feature_blob.get(), n);
+
+			for (int n = 0; n < batch_size; n++)
+				append_grad_to_binary(fpsgrad[k - 7], feature_blob.get(), n);
+		}
+		image_index += batch_size;
+		if (batch_index % 20 == 0) {
+			LOG(ERROR) << "Extracted features of " << image_index <<
+				" images.";
+		}
+	}
+	LOG(ERROR) << "Successfully extracted " << image_index << " features!";
+	for (int k = 7; k < argc; k++)
+	{
+		fclose(fps[k - 7]);
+	}
+
+	for (int k = 7; k < argc; k++)
+	{
+		fclose(fpsgrad[k - 7]);
+	}
+	
+	return 0;
+}

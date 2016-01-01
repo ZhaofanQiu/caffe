@@ -137,7 +137,7 @@
     <ClCompile Include="..\src\caffe\video\video_switch_layer.cpp" />
     <ClCompile Include="..\src\caffe\video\volume_data_layer.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\tools\extract_grad_encode_feature.cpp" />
+    <ClCompile Include="..\tools\caffe-light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -399,7 +399,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)../bin</OutDir>
-    <TargetName>extract_grad_encode_feature</TargetName>
+    <TargetName>caffe-light</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

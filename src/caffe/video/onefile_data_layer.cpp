@@ -20,6 +20,7 @@ namespace caffe {
 	template <typename Dtype>
 	OnefileDataLayer<Dtype>::~OnefileDataLayer<Dtype>()
 	{
+		fclose(fp_);
 		this->StopInternalThread();
 	}
 

@@ -402,7 +402,7 @@
     <ClCompile Include="..\src\caffe\video\gaussion_loss_layer.cpp">
       <Filter>Source Files\video</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\extract_grad_encode_feature.cpp">
+    <ClCompile Include="..\tools\caffe-light.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>

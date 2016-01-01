@@ -68,7 +68,7 @@ void GaussionLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 	  {
 		  for (int i = 0; i < inner; ++i)
 		  {
-			  dot += diff_data[index] * diff_data[index] / 2 / sigma_data[c] / sigma_data[c] + log(sigma_data[c]);
+			  dot += diff_data[index] * diff_data[index] / 2 / sigma_data[c] / sigma_data[c] + log(sigma_data[c]) + log(2 * 3.1415926) * 0.5;
 			  index++;
 		  }
 	  }
